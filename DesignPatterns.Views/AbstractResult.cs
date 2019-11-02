@@ -10,7 +10,7 @@ namespace DesignPatterns.Views
     {
         public string Message { get; set; }
 
-        public bool IsModelValid { get; protected set; }
+        public bool IsModelValid { get; set; }
 
         public PatternView Pattern { get; set; }
 

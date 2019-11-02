@@ -5,6 +5,8 @@ using System.Web;
 using AutoMapper;
 using DesignPatterns;
 using DesignPatterns.Views;
+using Microsoft.AspNet.Identity;
+using Microsoft.AspNet.Identity.EntityFramework;
 
 namespace Server.Mapping
 {
@@ -14,6 +16,9 @@ namespace Server.Mapping
         public static ApplicationContext cx { get { return context; } }
 
         private static ApplicationContext context = new ApplicationContext();
+
+        private static RoleManager<IdentityRole> roleManager = new RoleManager<IdentityRole>
+            (new RoleStore<IdentityRole>(context));
 
         public static void Initialize()
         {
@@ -71,7 +76,7 @@ namespace Server.Mapping
                     .ForMember(x => x.UserName,
                                 y => y.MapFrom(z => z.UserName))
                     .ForMember(x => x.Role,
-                                y => y.MapFrom(z => (Role)Enum.Parse(typeof(Role), z.Roles.Single().ToString())));
+                                y => y.MapFrom(z => (Role)Enum.Parse(typeof(Role), roleManager.FindById(z.Roles.Single().RoleId).Name)));
 
                 //---------------------------View to DB------------------------------
 

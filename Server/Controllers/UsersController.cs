@@ -21,7 +21,7 @@ namespace Server.Controllers
             var userManager = new ApplicationUserManager(new UserStore<ApplicationUser>(_cx));
 
             var user = userManager.Users.Where(x => x.UserName == User.Identity.Name).Single();
-
+            
             return Mapper.Map<ApplicationUser, UserView>(user);
         }
     }

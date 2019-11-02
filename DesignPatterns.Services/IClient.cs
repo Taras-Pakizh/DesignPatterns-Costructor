@@ -16,5 +16,7 @@ namespace DesignPatterns.Services
         UserView CurrentUser { get; }
 
         string Register(string username, string password, Role role);
+
+        void LogOut();
     }
 }

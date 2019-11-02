@@ -21,6 +21,9 @@ DesignPatterns/Properties/
 DesignPatterns.Views/obj/
 DesignPatterns.Views/bin/
 DesignPatterns.Views/Properties/
+DesignPatterns.ConsoleTest/obj/
+DesignPatterns.ConsoleTest/bin/
+DesignPatterns.ConsoleTest/Properties/
 *.dll
 *.pdb
 *.suo

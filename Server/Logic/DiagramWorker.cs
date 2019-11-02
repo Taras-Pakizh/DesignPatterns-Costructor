@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using AutoMapper;
+using System.Reflection;
 
 namespace Server.Logic
 {
@@ -127,11 +128,29 @@ namespace Server.Logic
             _received = diagram;
 
             _correct = DiagramWorker.CreateDiagram(_received.Pattern.Id);
+
+            //Minus all basic types
+            _correct.Subjects = _correct.Subjects.Where(x => x.type == SubjectType.Abstract_Class ||
+                x.type == SubjectType.Class || x.type == SubjectType.Interface).ToList();
+
+            //Set Ids to subjectreferences
+            foreach(var reference in _received.SubjectReferences)
+            {
+                var cxReferences = cx.SubjectReferences
+                    .Where(x => x.subject.Id == reference.subject_Id &&
+                                x.target.Id == reference.target_Id &&
+                                x.type == reference.type).ToList();
+
+                if(cxReferences.Count != 0)
+                {
+                    reference.Id = cxReferences.Single().Id;
+                }
+            }
         }
 
         public DiagramResult Compare(Difficulty difficulty)
         {
-            var result = new DiagramResult();
+            var result = new DiagramResult(_received.Pattern);
 
             foreach(var property in _received.GetType().GetProperties())
             {
@@ -140,12 +159,13 @@ namespace Server.Logic
                     continue;
                 }
 
-                var type = property.PropertyType.GetGenericTypeDefinition();
-
-                var methodInfo = this.GetType().GetMethod("CompareList");
+                var type = property.PropertyType.GetGenericArguments()[0];
+                
+                var methodInfo = typeof(DiagramWorker).GetRuntimeMethods()
+                    .Where(x => x.Name == "CompareList").Single();
 
                 var genericMethod = methodInfo.MakeGenericMethod(type);
-
+                
                 genericMethod.Invoke(this, new object[] 
                     { property.GetValue(_correct), property.GetValue(_received), result });
             }
@@ -158,7 +178,7 @@ namespace Server.Logic
         private void CompareList<T>(IEnumerable<T> correct, IEnumerable<T> received, DiagramResult result)
             where T : IViewBase, IDiagramElement
         {
-            int percentage = 100 / correct.Count();
+            double percentage = 100.0 / correct.Count();
 
             var ids = received.Select(x => x.GetId()).ToList();
 

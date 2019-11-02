@@ -22,5 +22,20 @@ namespace DesignPatterns.Views
         {
             return Id;
         }
+
+        public override int GetHashCode()
+        {
+            return Id;
+        }
+
+        public override bool Equals(object obj)
+        {
+            var questionView = obj as QuestionView;
+
+            if (questionView == null)
+                return false;
+
+            return Id.Equals(questionView.Id);
+        }
     }
 }

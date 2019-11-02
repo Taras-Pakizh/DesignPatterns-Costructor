@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Web;
 using DesignPatterns;
 using DesignPatterns.Views;
@@ -9,9 +10,11 @@ namespace DesignPatterns.Views
 {
     public class DiagramResult:AbstractResult
     {
-        public DiagramResult()
-        {
+        public DiagramResult() { }
 
+        public DiagramResult(PatternView pattern)
+        {
+            Pattern = pattern;
         }
 
         public DiagramResult(string message)
@@ -21,7 +24,7 @@ namespace DesignPatterns.Views
             IsModelValid = false;
         }
         
-        public Dictionary<string, int> ComparationResult { get; private set; } = new Dictionary<string, int>()
+        public Dictionary<string, double> ComparationResult { get; private set; } = new Dictionary<string, double>()
         {
             {"SubjectComparation",  0},
             {"SubjectMethodComparation",  0},
@@ -30,7 +33,7 @@ namespace DesignPatterns.Views
             {"MethodParameterComparation",  0},
         };
 
-        public Dictionary<string, int> ExtraErrors { get; private set; } = new Dictionary<string, int>()
+        public Dictionary<string, double> ExtraErrors { get; private set; } = new Dictionary<string, double>()
         {
             {"SubjectComparation",  0},
             {"SubjectMethodComparation",  0},
@@ -52,14 +55,14 @@ namespace DesignPatterns.Views
             return key;
         }
         
-        public void AddComparationSuccess<T>(int percentage) where T : IDiagramElement
+        public void AddComparationSuccess<T>(double percentage) where T : IDiagramElement
         {
             var key = _GetKey<T>();
 
             ComparationResult[key] += percentage;
         }
 
-        public void AddExtraErrorPercentage<T>(int percentage) where T : IDiagramElement
+        public void AddExtraErrorPercentage<T>(double percentage) where T : IDiagramElement
         {
             var key = _GetKey<T>();
 
@@ -94,11 +97,47 @@ namespace DesignPatterns.Views
                 throw new Exception("Easy not for diagrams");
             }
             
-            Mark = Percentage % 20;
+            Mark = Percentage / 20;
 
             IsModelValid = true;
 
             Message = "Ok";
+        }
+
+        public override string ToString()
+        {
+            StringBuilder result = new StringBuilder();
+
+            result.Append("------------------------\nDiagram result: \nPattern: " + Pattern.Name + "\n");
+
+            result.Append("Message: " + Message + "\nIsModelValid: " + IsModelValid + "\n");
+
+            result.Append("Percentage: " + Percentage + "\nMark: " + Mark + "\n");
+
+            result.Append("Comparation result:\n");
+
+            foreach(var item in ComparationResult)
+            {
+                result.Append(item.Key + " : " + item.Value + "\n");
+            }
+
+            result.Append("Extra Errors:\n");
+
+            foreach(var item in ExtraErrors)
+            {
+                result.Append(item.Key + " : " + item.Value + "\n");
+            }
+
+            result.Append("Error messages:\n");
+
+            foreach(var item in ErrorMessages)
+            {
+                result.Append(item + "\n");
+            }
+
+            result.Append("------------------------\n");
+
+            return result.ToString();
         }
     }
 }

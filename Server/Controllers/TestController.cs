@@ -29,6 +29,7 @@ namespace Server.Controllers
             }
 
             var tests = new TestView(
+                Mapper.Map<Pattern, PatternView>(_cx.Patterns.Find(id)),
                 Mapper.Map<IEnumerable<Question>, IEnumerable<QuestionView>>(questions),
                 Mapper.Map<IEnumerable<Answer>, IEnumerable<AnswerView>>(answers)
             );
@@ -48,7 +49,7 @@ namespace Server.Controllers
 
             try
             {
-                result = new TestResult(diagramView.Answers);
+                result = new TestResult(diagramView.Pattern, diagramView.Answers);
 
                 var userManager = new ApplicationUserManager(new UserStore<ApplicationUser>(_cx));
 

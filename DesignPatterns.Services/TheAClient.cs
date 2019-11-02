@@ -10,7 +10,7 @@ using System.Net.Http.Headers;
 
 namespace DesignPatterns.Services
 {
-    public class TheAClient:IClient
+    public class TheAClient:IClient, IDisposable
     {
         private readonly string _app_path;
 
@@ -33,27 +33,45 @@ namespace DesignPatterns.Services
             }
         }
 
+        private DiagramManager _diagramManager;
+
         public DiagramManager DiagramManager
         {
             get
             {
-                return new DiagramManager(_CreateClient());
+                if(_diagramManager == null && _token != null)
+                {
+                    _diagramManager = new DiagramManager(_CreateClient());
+                }
+                return _diagramManager;
             }
         }
+
+        private PatternManager _patternManager;
 
         public PatternManager PatternManager
         {
             get
             {
-                return new PatternManager(_CreateClient());
+                if(_patternManager == null && _token != null)
+                {
+                    _patternManager = new PatternManager(_CreateClient());
+                }
+                return _patternManager;
             }
         }
+
+        private TestManager _testManager;
 
         public TestManager TestManager
         {
             get
             {
-                return new TestManager(_CreateClient());
+                if(_testManager == null && _token != null)
+                {
+                    _testManager = new TestManager(_CreateClient());
+                }
+                return _testManager;
             }
         }
 
@@ -154,6 +172,24 @@ namespace DesignPatterns.Services
             }
 
             return client;
+        }
+
+        public void LogOut()
+        {
+            _token = null;
+
+            _currentUser = null;
+
+            _diagramManager = null;
+
+            _patternManager = null;
+
+            _testManager = null;
+        }
+
+        public void Dispose()
+        {
+            LogOut();
         }
     }
 }

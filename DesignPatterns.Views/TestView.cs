@@ -8,12 +8,11 @@ namespace DesignPatterns.Views
 {
     public class TestView : IViewBase
     {
-        public Pattern Pattern { get; set; }
+        public PatternView Pattern { get; set; }
+        
+        public IEnumerable<QuestionAnswersView> Questions { get; set; }
 
-        public Dictionary<QuestionView, IEnumerable<AnswerView>> Questions { get; set; } = 
-            new Dictionary<QuestionView, IEnumerable<AnswerView>>();
-
-        public IEnumerable<AnswerView> Answers { get; set; }
+        public IEnumerable<AnswerView> Answers { get; set; } = new List<AnswerView>();
 
         public object GetId()
         {
@@ -22,14 +21,24 @@ namespace DesignPatterns.Views
 
         public TestView() { }
 
-        public TestView(IEnumerable<QuestionView> questions, IEnumerable<AnswerView> answers)
+        public TestView(PatternView pattern, IEnumerable<QuestionView> questions, IEnumerable<AnswerView> answers)
         {
+            Pattern = pattern;
+
+            var questionAnswers = new List<QuestionAnswersView>();
+
             foreach(var question in questions)
             {
                 var variants = answers.Where(x => x.question_Id == question.Id).ToList();
 
-                Questions.Add(question, variants);
+                questionAnswers.Add(new QuestionAnswersView()
+                {
+                    Question = question,
+                    Variants = variants
+                });
             }
+
+            Questions = questionAnswers;
         }
     }
 }

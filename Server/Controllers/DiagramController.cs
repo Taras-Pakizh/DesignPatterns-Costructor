@@ -26,6 +26,7 @@ namespace Server.Controllers
         public Diagram Get(int id)
         {
             return DiagramWorker.CreateRandomDiagram(id);
+            //return DiagramWorker.CreateDiagram(id);
         }
 
         // POST api/Diagram
@@ -54,18 +55,18 @@ namespace Server.Controllers
                 {
                     difficulty = diagramView.Difficulty,
                     mark = result.Mark,
-                    pattern = _cx.Patterns.Find(result.Pattern.Id),
                     percent = result.Percentage,
+                    pattern = _cx.Patterns.Find(result.Pattern.Id),
                     User = user
                 };
-
+                
                 _cx.Marks.Add(mark);
 
                 _cx.SaveChanges();
             }
             catch (Exception e)
             {
-                return new DiagramResult("Bad Request " + e.Message);
+                return new DiagramResult("Bad Request. Exception: " + e.Message);
             }
 
             return result;
