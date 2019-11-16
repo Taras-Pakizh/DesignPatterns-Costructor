@@ -14,7 +14,7 @@ namespace DesignPatterns.Views
 
         public object GetId()
         {
-            throw new NotImplementedException();
+            return Diagram.GetId();
         }
     }
 }

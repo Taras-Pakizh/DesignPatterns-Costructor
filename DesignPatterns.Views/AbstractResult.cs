@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace DesignPatterns.Views
 {
-    public class AbstractResult
+    public abstract class AbstractResult
     {
         public string Message { get; set; }
 

@@ -1,0 +1,31 @@
+﻿<UserControl x:Class="DesignPatterns.Client.Controllers.ObjectItem"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:DesignPatterns.Client.Controllers"
+             mc:Ignorable="d" 
+             Background="#111111">
+
+    <UserControl.Resources>
+
+        <ResourceDictionary Source="Styles.xaml"/>
+
+    </UserControl.Resources>
+
+    <DockPanel Background="#111111" Margin="5"
+               VerticalAlignment="Stretch" LastChildFill="True">
+
+        <ComboBox x:Name="Combo_PName" DockPanel.Dock="Left"/>
+
+        <Button x:Name="Button_Delete" DockPanel.Dock="Right">
+
+            <Image Source="../images/close-512.png" Height="30" Width="30"/>
+
+        </Button>
+
+        <ComboBox x:Name="Combo_PType" DockPanel.Dock="Left"/>
+
+    </DockPanel>
+
+</UserControl>
