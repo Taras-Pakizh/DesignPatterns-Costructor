@@ -84,7 +84,7 @@ namespace DesignPatterns.Services
         
         //------------------------------
 
-        public bool Authorization(string username, string password)
+        public async Task<bool> Authorization(string username, string password)
         {
             var pairs = new List<KeyValuePair<string, string>>
                 {
@@ -98,14 +98,14 @@ namespace DesignPatterns.Services
             {
                 using (var client = new HttpClient())
                 {
-                    var response = client.PostAsync(_app_path + "/Token", content).Result;
-                    var result = response.Content.ReadAsStringAsync().Result;
+                    var response = await client.PostAsync(_app_path + "/Token", content);
+                    var result = await response.Content.ReadAsStringAsync();
                     Dictionary<string, string> tokenDictionary =
                         JsonConvert.DeserializeObject<Dictionary<string, string>>(result);
 
                     //------------Отримання токена авторизація та обєкту авторизованого користувача
                     _token = tokenDictionary["access_token"];
-                    _currentUser = _GetCurrentUser().Result;
+                    _currentUser = await _GetCurrentUser();
                 }
             }
             catch (Exception e)
@@ -116,7 +116,7 @@ namespace DesignPatterns.Services
             return true;
         }
 
-        public string Register(string username, string password, Role role)
+        public async Task<string> Register(string username, string password, Role role)
         {
             var registerModel = new
             {
@@ -130,7 +130,7 @@ namespace DesignPatterns.Services
             {
                 client.BaseAddress = new Uri(_app_path + '/');
 
-                var response = client.PostAsJsonAsync("/api/Account/Register", registerModel).Result;
+                var response = await client.PostAsJsonAsync("/api/Account/Register", registerModel);
 
                 return response.StatusCode.ToString();
             }

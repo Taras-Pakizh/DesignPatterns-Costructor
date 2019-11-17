@@ -11,11 +11,11 @@ namespace DesignPatterns.Services
     {
         bool IsAuthorizated { get; }
 
-        bool Authorization(string username, string password);
+        Task<bool> Authorization(string username, string password);
         
         UserView CurrentUser { get; }
 
-        string Register(string username, string password, Role role);
+        Task<string> Register(string username, string password, Role role);
 
         void LogOut();
     }

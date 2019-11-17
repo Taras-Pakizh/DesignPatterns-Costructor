@@ -1,4 +1,6 @@
-﻿using DesignPatterns.Client.Windows;
+﻿using DesignPatterns.Client.View;
+using DesignPatterns.Client.Windows;
+using DesignPatterns.Views;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -14,11 +16,51 @@ namespace DesignPatterns.Client
     /// </summary>
     public partial class App : Application
     {
+        private ApplicationView _context;
+
+        private Window _currentWindow;
+
         public App()
         {
-            var windows = new MainWindow();
+            _currentWindow = new LoginWindow();
 
-            windows.Show();
+            _context = new ApplicationView();
+
+            _currentWindow.DataContext = _context;
+
+            _currentWindow.Show();
+        }
+
+        public void FinishAuthorization()
+        {
+            if (!_context.Client.IsAuthorizated)
+            {
+                return;
+            }
+
+            _currentWindow = new ProfileWindow();
+
+            _currentWindow.DataContext = _context;
+
+            _currentWindow.Show();
+        }
+
+        public void Start()
+        {
+            _currentWindow = new MainWindow();
+
+            _currentWindow.DataContext = _context;
+
+            _currentWindow.Show();
+        }
+
+        public void LogOut()
+        {
+            _currentWindow = new LoginWindow();
+
+            _currentWindow.DataContext = _context;
+
+            _currentWindow.Show();
         }
     }
 }

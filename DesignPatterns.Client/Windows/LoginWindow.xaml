@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:DesignPatterns.Client.Windows"
         mc:Ignorable="d"
-        Title="LoginWindow" Height="200" Width="800" Background="Black">
+        Title="LoginWindow" Height="300" Width="600" Background="Black">
 
     <Window.Resources>
 
@@ -14,6 +14,10 @@
     </Window.Resources>
 
     <StackPanel HorizontalAlignment="Center">
+
+        <Button Content="Registration" Name="Button_Change" HorizontalAlignment="Right" Click="Change_Click"/>
+
+        <TextBlock Name="Text_Errors" Foreground="Yellow"/>
 
         <Grid>
 
@@ -30,13 +34,25 @@
 
                 <TextBlock Text="Password:"/>
 
+                <TextBlock Text="Role:" Name="Text_Role" Visibility="Collapsed"/>
+
             </StackPanel>
 
             <StackPanel Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Center">
 
                 <TextBox Name="Edit_Login" Width="200"/>
 
-                <TextBox Name="Edit_Password" Width="200"/>
+                <PasswordBox Name="Edit_Password" Width="200"
+                             Background="Black" FontSize="16" Foreground="White" Margin="5"
+                             Padding="5"/>
+
+                <ComboBox Name="Combo_Role" Visibility="Collapsed">
+
+                    <ComboBoxItem IsSelected="True">Student</ComboBoxItem>
+
+                    <ComboBoxItem>Administrator</ComboBoxItem>
+                    
+                </ComboBox>
 
             </StackPanel>
 
@@ -44,9 +60,7 @@
 
         <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
 
-            <Button Content="Log in"/>
-
-            <Button Content="Sing in"/>
+            <Button Content="Log in" Name="Button_Enter" Click="Enter_Click"/>
 
         </StackPanel>
 
