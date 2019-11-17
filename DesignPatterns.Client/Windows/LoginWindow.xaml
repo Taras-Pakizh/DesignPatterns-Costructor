@@ -1,0 +1,55 @@
+﻿<Window x:Class="DesignPatterns.Client.Windows.LoginWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:DesignPatterns.Client.Windows"
+        mc:Ignorable="d"
+        Title="LoginWindow" Height="200" Width="800" Background="Black">
+
+    <Window.Resources>
+
+        <ResourceDictionary Source="../Controllers/Styles.xaml"/>
+
+    </Window.Resources>
+
+    <StackPanel HorizontalAlignment="Center">
+
+        <Grid>
+
+            <Grid.ColumnDefinitions>
+
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Grid.Column="0" HorizontalAlignment="Right" VerticalAlignment="Center">
+
+                <TextBlock Text="Login:"/>
+
+                <TextBlock Text="Password:"/>
+
+            </StackPanel>
+
+            <StackPanel Grid.Column="1" HorizontalAlignment="Left" VerticalAlignment="Center">
+
+                <TextBox Name="Edit_Login" Width="200"/>
+
+                <TextBox Name="Edit_Password" Width="200"/>
+
+            </StackPanel>
+
+        </Grid>
+
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+
+            <Button Content="Log in"/>
+
+            <Button Content="Sing in"/>
+
+        </StackPanel>
+
+    </StackPanel>
+    
+</Window>
