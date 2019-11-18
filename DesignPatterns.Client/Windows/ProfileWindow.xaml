@@ -4,6 +4,7 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:DesignPatterns.Client.Windows"
+        xmlns:controllers="clr-namespace:DesignPatterns.Client.Controllers"
         mc:Ignorable="d"
         Title="ProfileWindow" Height="450" Width="800" Background="Black">
 
@@ -13,69 +14,97 @@
 
     </Window.Resources>
 
-    <DockPanel Background="Black" VerticalAlignment="Stretch" LastChildFill="True">
+    <DockPanel>
 
-        <StackPanel DockPanel.Dock="Top">
+        <StackPanel  Visibility="Collapsed"></StackPanel>
+        
+        <DockPanel DockPanel.Dock="Top">
 
-            <Button Content="Log out" HorizontalAlignment="Right"/>
+            <DockPanel DockPanel.Dock="Top" Name="Panel_Patterns" 
+                       Background="Black" Visibility="Collapsed" VerticalAlignment="Stretch">
 
-        </StackPanel>
+                <DockPanel DockPanel.Dock="Bottom" LastChildFill="False">
 
-        <StackPanel DockPanel.Dock="Bottom">
+                    <Button Name="Button_Back" DockPanel.Dock="Left" Click="Back_Click">
 
-            <Button Content="Start" HorizontalAlignment="Right"/>
+                        <Image Source="../images/back.png" Height="30" Width="30"/>
 
-        </StackPanel>
+                    </Button>
 
-        <StackPanel DockPanel.Dock="Top">
+                    <Button Content="Start testing" DockPanel.Dock="Right" Click="StartTesting_Click"/>
 
-            <StackPanel HorizontalAlignment="Center">
+                </DockPanel>
 
-                <Grid>
+                <controllers:PatternController DockPanel.Dock="Top" x:Name="Controller_Patterns" />
 
-                    <Grid.ColumnDefinitions>
+            </DockPanel>
 
-                        <ColumnDefinition/>
-                        <ColumnDefinition/>
+            <DockPanel DockPanel.Dock="Top" Name="Panel_Profile" Background="Black" VerticalAlignment="Stretch" LastChildFill="True">
 
-                    </Grid.ColumnDefinitions>
+                <StackPanel DockPanel.Dock="Top">
 
-                    <StackPanel Grid.Column="0">
+                    <Button Content="Log out" HorizontalAlignment="Right" Click="LogOut_Click"/>
 
-                        <TextBlock Text="Name:"/>
+                </StackPanel>
 
-                        <TextBlock Text="Role:"/>
+                <StackPanel DockPanel.Dock="Bottom">
+
+                    <Button Content="Start" HorizontalAlignment="Right" Click="Start_Click"/>
+
+                </StackPanel>
+
+                <StackPanel DockPanel.Dock="Top">
+
+                    <StackPanel HorizontalAlignment="Center">
+
+                        <Grid>
+
+                            <Grid.ColumnDefinitions>
+
+                                <ColumnDefinition/>
+                                <ColumnDefinition/>
+
+                            </Grid.ColumnDefinitions>
+
+                            <StackPanel Grid.Column="0" VerticalAlignment="Center">
+
+                                <TextBlock Text="Name:"/>
+
+                                <TextBlock Text="Role:"/>
+
+                            </StackPanel>
+
+                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+
+                                <TextBox Text="{Binding Path=CurrentUser.UserName}"  IsEnabled="False" Width="200"/>
+
+                                <TextBox Text="{Binding Path=CurrentUser.Role}" IsEnabled="False" Width="200"/>
+
+                            </StackPanel>
+
+                        </Grid>
 
                     </StackPanel>
 
-                    <StackPanel Grid.Column="1">
+                </StackPanel>
 
-                        <TextBox Name="Edit_Name" IsEnabled="False" Width="200"/>
+                <DockPanel DockPanel.Dock="Top">
 
-                        <TextBox Name="Edit_Role" IsEnabled="False" Width="200"/>
+                    <TextBlock Text="Completed tasks:" DockPanel.Dock="Top" HorizontalAlignment="Center"/>
 
-                    </StackPanel>
+                    <ListBox DockPanel.Dock="Top" Name="List_Completed" 
+                                 HorizontalAlignment="Center"
+                                 ScrollViewer.CanContentScroll="True"
+                                 ScrollViewer.VerticalScrollBarVisibility="Hidden"
+                                 ItemsSource="{Binding Path=Marks}">
+                    </ListBox>
 
-                </Grid>
+                </DockPanel>
 
-            </StackPanel>
-            
-        </StackPanel>
+            </DockPanel>
 
-        <StackPanel DockPanel.Dock="Top">
-
-            <StackPanel HorizontalAlignment="Center">
-
-                <TextBlock Text="Completed tasks:"/>
-
-                <ListBox Name="List_Completed">
-
-                </ListBox>
-
-            </StackPanel>
-            
-        </StackPanel>
-
+        </DockPanel>
+        
     </DockPanel>
     
 </Window>

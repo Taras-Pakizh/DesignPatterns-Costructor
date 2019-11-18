@@ -32,7 +32,7 @@ namespace DesignPatterns.Services
                 return _currentUser;
             }
         }
-
+        
         private DiagramManager _diagramManager;
 
         public DiagramManager DiagramManager
@@ -135,7 +135,27 @@ namespace DesignPatterns.Services
                 return response.StatusCode.ToString();
             }
         }
-        
+
+        public async Task<IEnumerable<MarkView>> UserInfo()
+        {
+            if (!IsAuthorizated)
+            {
+                throw new Exception("User isn't authorized. Can't get user info");
+            }
+
+            using(var client = _CreateClient())
+            {
+                var responce = await client.GetAsync("api/Users" + "/" + CurrentUser.Id);
+
+                if (responce.IsSuccessStatusCode)
+                {
+                    return await responce.Content.ReadAsAsync<IEnumerable<MarkView>>();
+                }
+
+                throw new Exception("Cant get current user info");
+            }
+        }
+
         //---------------------------------
 
         private async Task<UserView> _GetCurrentUser()

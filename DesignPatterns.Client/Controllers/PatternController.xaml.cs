@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using DesignPatterns;
 
 namespace DesignPatterns.Client.Controllers
 {
@@ -23,6 +24,34 @@ namespace DesignPatterns.Client.Controllers
         public PatternController()
         {
             InitializeComponent();
+        }
+
+        public int? SelectedPattern
+        {
+            get
+            {
+                if(Combo_Patterns.SelectedValue != null)
+                {
+                    return (int)Combo_Patterns.SelectedValue;
+                }
+
+                return null;
+            }
+        }
+
+        public Difficulty? SelectedDifficulty
+        {
+            get
+            {
+                if(Combo_Difficulty.SelectedIndex == -1)
+                {
+                    return null;
+                }
+
+                var item = (ComboBoxItem)Combo_Difficulty.SelectedValue;
+
+                return (Difficulty)Enum.Parse(typeof(Difficulty), (string)item.Content);
+            }
         }
     }
 }

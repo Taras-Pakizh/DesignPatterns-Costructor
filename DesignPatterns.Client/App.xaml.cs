@@ -33,21 +33,23 @@ namespace DesignPatterns.Client
 
         public void FinishAuthorization()
         {
-            if (!_context.Client.IsAuthorizated)
+            if (!_context.IsAuthorized)
             {
                 return;
             }
 
             _currentWindow = new ProfileWindow();
-
+            
             _currentWindow.DataContext = _context;
 
             _currentWindow.Show();
         }
 
-        public void Start()
+        public void Start(int patternId, Difficulty difficulty)
         {
             _currentWindow = new MainWindow();
+
+            _context.LoadTasks(patternId, difficulty);
 
             _currentWindow.DataContext = _context;
 
@@ -57,6 +59,8 @@ namespace DesignPatterns.Client
         public void LogOut()
         {
             _currentWindow = new LoginWindow();
+
+            _context.LogOut();
 
             _currentWindow.DataContext = _context;
 

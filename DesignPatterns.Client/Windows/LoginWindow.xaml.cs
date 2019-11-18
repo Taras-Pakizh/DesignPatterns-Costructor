@@ -29,6 +29,16 @@ namespace DesignPatterns.Client.Windows
             get { return (ApplicationView)DataContext; }
         }
 
+        private bool IsModelValid(object model)
+        {
+            if (!validator.IsModelValid(model))
+            {
+                Text_Errors.Text = validator.ValidationResults;
+                return false;
+            }
+            return true;
+        }
+
         public LoginWindow()
         {
             InitializeComponent();
@@ -36,50 +46,62 @@ namespace DesignPatterns.Client.Windows
 
         private async void Enter_Click(object sender, RoutedEventArgs e)
         {
-            var model = new AuthorizationModel()
-            {
-                username = Edit_Login.Text,
-                password = Edit_Password.Password
-            };
-
-            if (!validator.IsModelValid(model))
-            {
-                Text_Errors.Text = validator.ValidationResults;
-                return;
-            }
-
             if(_state == State.Authorization)
             {
-                await Context.Client.Authorization(model.username, model.password);
+                var model = new AuthorizationModel()
+                {
+                    username = Edit_Login.Text,
+                    password = Edit_Password.Password
+                };
+
+                if (!IsModelValid(model))
+                {
+                    return;
+                }
+
+                await Context.Authorize(model);
             }
-            else
+            else if(_state == State.Registration)
             {
                 var item = (ComboBoxItem)Combo_Role.SelectedValue;
                 
                 Role role = (Role)Enum.Parse(typeof(Role), (string)item.Content);
 
-                var responce = await Context.Client.Register(model.username, model.password, role);
-
-                if(responce != "OK")
+                var model = new RegistrationModel()
                 {
-                    Text_Errors.Text = responce;
+                    username = Edit_Login.Text,
+                    password = Edit_Password.Password,
+                    Role = role
+                };
 
-                    return;
+                if(!(await Context.Register(model)))
+                {
+                    Text_Errors.Text = Context.ErrorMessages;
                 }
-
-                Change_Click(null, null);
+                else
+                {
+                    Change_Click(null, null);
+                }
 
                 return;
             }
             
-            if (Context.Client.IsAuthorizated)
+            if (Context.IsAuthorized)
             {
                 ((App)Application.Current).FinishAuthorization();
+
                 this.Close();
             }
             else
             {
-                Text_Errors.Text = "Authorization has failed. Check if login and password had been inputed correctly";
+                string message = "Authorization has failed. Check if login and password had been inputed correctly";
+
+                if (Context.ErrorMessages != null)
+                {
+                    message += "\n" + Context.ErrorMessages;
+                }
+
+                Text_Errors.Text = message;
             }
         }
 

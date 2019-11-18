@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DesignPatterns.Client.View;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -22,6 +23,50 @@ namespace DesignPatterns.Client.Windows
         public ProfileWindow()
         {
             InitializeComponent();
+        }
+
+        private ApplicationView Context
+        {
+            get { return (ApplicationView)DataContext; }
+        }
+
+        private void LogOut_Click(object sender, RoutedEventArgs e)
+        {
+            ((App)Application.Current).LogOut();
+
+            this.Close();
+        }
+
+        private void Start_Click(object sender, RoutedEventArgs e)
+        {
+            Panel_Profile.Visibility = Visibility.Collapsed;
+
+            Panel_Patterns.Visibility = Visibility.Visible;
+        }
+
+        private void Back_Click(object sender, RoutedEventArgs e)
+        {
+            Panel_Profile.Visibility = Visibility.Visible;
+
+            Panel_Patterns.Visibility = Visibility.Collapsed;
+        }
+
+        private void StartTesting_Click(object sender, RoutedEventArgs e)
+        {
+            var patternId = Controller_Patterns.SelectedPattern;
+
+            var difficulty = Controller_Patterns.SelectedDifficulty;
+
+            if(patternId == null || difficulty == null)
+            {
+                MessageBox.Show("Choose pattern and difficulty");
+
+                return;
+            }
+            
+            ((App)Application.Current).Start((int)patternId, (Difficulty)difficulty);
+
+            this.Close();
         }
     }
 }
