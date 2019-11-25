@@ -4,6 +4,9 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:DesignPatterns.Client.Controllers"
+             xmlns:drawing="clr-namespace:DesignPatterns.Client.Drawing"
+             xmlns:converters="clr-namespace:DesignPatterns.Client.Converters"
+             xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
              x:Class="DesignPatterns.Client.Controllers.DiagramWorkSpace"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800" Background="Black">
@@ -11,7 +14,7 @@
     <UserControl.Resources>
 
         <ResourceDictionary Source="Styles.xaml"/>
-
+        
     </UserControl.Resources>
 
     <DockPanel Background="Black" VerticalAlignment="Stretch" LastChildFill="True">
@@ -20,25 +23,66 @@
 
             <StackPanel x:Name="Panel_Tools" Orientation="Horizontal" HorizontalAlignment="Left">
 
-                <StackPanel x:Name="Panel_Cursor_container" Orientation="Horizontal">
+                <StackPanel x:Name="Panel_Cursor_container" Orientation="Horizontal"
+                            Background="{Binding Path=CurrentAction, ConverterParameter=Panel_Cursor_container, Converter={StaticResource ResourceKey=ActionConverter}}">
 
                     <Button x:Name="Button_Cursor">
 
                         <Image Source="../images/cursor-512.png" Height="30" Width="30"/>
 
+                        <Button.InputBindings>
+
+                            <MouseBinding Gesture="LeftClick" Command="{Binding Path=ActionChoose}" 
+                                      CommandParameter="{Binding ElementName=Button_Cursor}"/>
+
+                        </Button.InputBindings>
+                        
                     </Button>
 
                 </StackPanel>
 
-                <StackPanel x:Name="Panel_SubjectType_container" Orientation="Horizontal">
+                <StackPanel x:Name="Panel_SubjectType_container" Orientation="Horizontal"
+                            Background="{Binding Path=CurrentAction, ConverterParameter=Panel_SubjectType_container, Converter={StaticResource ResourceKey=ActionConverter}}">
 
-                    <ComboBox x:Name="Combo_SubjectType" Text="Subject Type"/>
+                    <ComboBox x:Name="Combo_SubjectType" Text="Subject Type"
+                              ItemsSource="{Binding Path=SubjectTypes, Mode=OneWay}"
+                              SelectedValuePath="Type" DisplayMemberPath="Text">
+
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="SelectionChanged">
+                                <i:InvokeCommandAction Command="{Binding Path=ActionChoose}" 
+                                      CommandParameter="{Binding ElementName=Combo_ReferenceType}" />
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
+
+                    </ComboBox>
 
                 </StackPanel>
 
-                <StackPanel x:Name="Panel_ReferenceType_container" Orientation="Horizontal">
+                <StackPanel x:Name="Panel_ReferenceType_container" Orientation="Horizontal"
+                            Background="{Binding Path=CurrentAction, ConverterParameter=Panel_ReferenceType_container, Converter={StaticResource ResourceKey=ActionConverter}}">
 
-                    <ComboBox x:Name="Combo_ReferenceType" Text="Reference Type"/>
+                    <ComboBox x:Name="Combo_ReferenceType" Text="Reference Type"
+                              ItemsSource="{Binding Path=ReferenceTypes, Mode=OneWay}"
+                              SelectedValuePath="Type">
+
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal">
+                                    <Image Source="{Binding Image}" Height="30" Width="150" />
+                                    <TextBlock Text="{Binding Path=Text}"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="SelectionChanged">
+                                <i:InvokeCommandAction Command="{Binding Path=ActionChoose}" 
+                                      CommandParameter="{Binding ElementName=Combo_ReferenceType}" />
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
+
+                    </ComboBox>
 
                 </StackPanel>
 
@@ -83,11 +127,59 @@
             <GridSplitter x:Name="Center_Splitter" Grid.Column="1" ShowsPreview="False" Width="3" 
                           HorizontalAlignment="Center" VerticalAlignment="Stretch"/>
 
-            <DockPanel x:Name="Panel_WorkSpace" Grid.Column="0" LastChildFill="True">
+            <DockPanel x:Name="Panel_WorkSpace" Grid.Column="0" LastChildFill="True"
+                       Margin="5">
 
-                <Canvas x:Name="Canvas_WorkSpace" Visibility="Collapsed"/>
+                <ItemsControl ItemsSource="{Binding Path=CanvasBinding}">
 
-                <local:ObjectForm Visibility="Visible"/>
+                    <ItemsControl.Resources>
+                        
+                        <DataTemplate DataType="{x:Type drawing:PathBinding}">
+
+                            <Path Data="{Binding Data}" Stroke="{Binding Stroke}" 
+                                  Fill="{Binding Fill}" StrokeThickness="{Binding Thickness}"
+                                  StrokeDashCap="{Binding StrokeDashCap}" StrokeDashArray="{Binding StrokeDashArray}"
+                            />
+
+                        </DataTemplate>
+
+                        <DataTemplate DataType="{x:Type drawing:LabelBinding}">
+
+                            <TextBlock Text="{Binding Text}" Foreground="Black" FontSize="10"/>
+
+                        </DataTemplate>
+                        
+                    </ItemsControl.Resources>
+                    
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <Canvas x:Name="Canvas_WorkSpace" Visibility="Visible" 
+                                    Background="LightPink" Width="{Binding Path=ActualWidth, ElementName=Panel_WorkSpace}">
+
+                                <Canvas.InputBindings>
+                                    <MouseBinding Gesture="LeftClick" Command="{Binding Path=CanvasClick}" 
+                                      CommandParameter="{Binding ElementName=Canvas_WorkSpace}"/>
+                                </Canvas.InputBindings>
+
+                            </Canvas>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    
+                    <ItemsControl.ItemContainerStyle>
+                        
+                        <Style TargetType="ContentPresenter">
+                            
+                            <Setter Property="Canvas.Left" Value="{Binding Path=Left}" />
+                            
+                            <Setter Property="Canvas.Top" Value="{Binding Path=Top}" />
+                            
+                        </Style>
+                        
+                    </ItemsControl.ItemContainerStyle>
+                    
+                </ItemsControl>
+
+                <local:ObjectForm Visibility="Collapsed"/>
 
             </DockPanel>
 

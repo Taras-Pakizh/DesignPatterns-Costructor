@@ -4,6 +4,11 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Input;
+using System.Windows.Shapes;
+using DesignPatterns.Client.Drawing;
 using DesignPatterns.Services;
 using DesignPatterns.Views;
 
@@ -15,7 +20,11 @@ namespace DesignPatterns.Client.View
 
         public ApplicationView()
         {
+            ReferenceTypes = new ObservableCollection<ComboBoxReferenceItem>
+                (ComboBoxReferenceItem.GetValues());
 
+            SubjectTypes = new ObservableCollection<ComboBoxSubjectItem>
+                (ComboBoxSubjectItem.GetValues());
         }
         
         public string ErrorMessages { get; set; } = "";
@@ -113,9 +122,69 @@ namespace DesignPatterns.Client.View
                     LoadedDiagram = await Client.DiagramManager.GetAsync(CurrentPattern.Id);
                     break;
             }
+            
         }
 
         #region Properties
+
+        private ObservableCollection<ComboBoxSubjectItem> _subjectTypes;
+        public ObservableCollection<ComboBoxSubjectItem> SubjectTypes
+        {
+            get { return _subjectTypes; }
+            set
+            {
+                _subjectTypes = value;
+                OnPropertyChanged(nameof(SubjectTypes));
+            }
+        }
+
+        private ObservableCollection<ComboBoxReferenceItem> _referenceTypes;
+        public ObservableCollection<ComboBoxReferenceItem> ReferenceTypes
+        {
+            get { return _referenceTypes; }
+            set
+            {
+                _referenceTypes = value;
+                OnPropertyChanged(nameof(ReferenceTypes));
+            }
+        }
+
+        private CanvasActionType? _currentAction;
+        public CanvasActionType? CurrentAction
+        {
+            get { return _currentAction; }
+            set
+            {
+                _currentAction = value;
+                OnPropertyChanged(nameof(CurrentAction));
+            }
+        }
+
+        public IList<ICanvasElement> Elements = new List<ICanvasElement>();
+        private void _AddCanvasElement(ICanvasElement element)
+        {
+            Elements.Add(element);
+
+            List<IObjectBinding> elements = new List<IObjectBinding>();
+
+            foreach(var list in Elements.Select(x => x.ElementsBinding))
+            {
+                elements.AddRange(list);
+            }
+
+            CanvasBinding = new ObservableCollection<IObjectBinding>(elements);
+        }
+
+        private ObservableCollection<IObjectBinding> _canvasBinding;
+        public ObservableCollection<IObjectBinding> CanvasBinding
+        {
+            get { return _canvasBinding; }
+            set
+            {
+                _canvasBinding = value;
+                OnPropertyChanged(nameof(CanvasBinding));
+            }
+        }
 
         private Diagram _loadedDiagram;
         public Diagram LoadedDiagram
@@ -207,21 +276,64 @@ namespace DesignPatterns.Client.View
 
         #endregion
 
+        #region Commands
+
+        private Command _CanvasClick;
+        public ICommand CanvasClick
+        {
+            get
+            {
+                if (_CanvasClick != null)
+                    return _CanvasClick;
+                _CanvasClick = new Command(_CanvasClick_Exec);
+                return _CanvasClick;
+            }
+        }
         
-        //private Command _FilterReports;
-        //public ICommand FilterReports
-        //{
-        //    get
-        //    {
-        //        if (_FilterReports != null)
-        //            return _FilterReports;
-        //        _FilterReports = new Command(_FilterReports_Exec);
-        //        return _FilterReports;
-        //    }
-        //}
-        
-        /* 
-        private async void _FilterReports_Exec(object obj)
-         */
+        private void _CanvasClick_Exec(object parameter)
+        {
+            Point mousePos = Mouse.GetPosition((IInputElement)parameter);
+
+            var subject = LoadedDiagram.Subjects.Where(x => x.type == SubjectType.Class).First();
+
+            var element = new SubjectCanvas(subject, mousePos);
+
+            _AddCanvasElement(element);
+        }
+
+        private Command _ActionChoose;
+        public ICommand ActionChoose
+        {
+            get
+            {
+                if (_ActionChoose != null)
+                    return _ActionChoose;
+                _ActionChoose = new Command(_ActionChoose_Exec);
+                return _ActionChoose;
+            }
+        }
+
+        private void _ActionChoose_Exec(object parameter)
+        {
+            var control = (Control)parameter;
+
+            switch (control.Name)
+            {
+                case "Button_Cursor":
+                    CurrentAction = CanvasActionType.Cursor;
+                    break;
+                case "Combo_SubjectType":
+                    CurrentAction = CanvasActionType.ObjectCreate;
+                    break;
+                case "Combo_ReferenceType":
+                    CurrentAction = CanvasActionType.ReferenceCreate;
+                    break;
+                default:
+                    MessageBox.Show("Unknown control name");
+                    return;
+            }
+        }
+
+        #endregion
     }
 }
