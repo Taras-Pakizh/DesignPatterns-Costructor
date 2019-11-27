@@ -17,8 +17,6 @@ namespace DesignPatterns.Client.Drawing
 
         public int Height { get; set; }
         
-        public PathType BorderType { get; private set; } = PathType.Solid;
-
         public SubjectView View { get; set; }
         
         private PathBindingCreator _BindingCreator { get; set; } = new PathBindingCreator();
@@ -63,13 +61,22 @@ namespace DesignPatterns.Client.Drawing
         public SubjectCanvas(SubjectView view, Point center, int width = 100, int height = 50)
         {
             View = view;
-
+            
             Center = center;
 
             Width = width;
 
             Height = height;
 
+            _BindingCreator.Type = PathType.Solid;
+
+            _LabelBinding = new LabelBinding(this);
+
+            _PathBinding = _BindingCreator.Create(GeometryCreator.Create(this));
+        }
+
+        public void Update()
+        {
             _LabelBinding = new LabelBinding(this);
 
             _PathBinding = _BindingCreator.Create(GeometryCreator.Create(this));
@@ -86,22 +93,22 @@ namespace DesignPatterns.Client.Drawing
 
         public void Focus()
         {
-            if(BorderType != PathType.Dashed)
+            if (_BindingCreator.Type != PathType.Dashed)
             {
-                _PathBinding = _BindingCreator.SetDashes(_PathBinding);
+                _BindingCreator.Type = PathType.Dashed;
+                
+                _PathBinding = _BindingCreator.Create(GeometryCreator.Create(this));
             }
-
-            BorderType = PathType.Dashed;
         }
 
         public void UnFocus()
         {
-            if(BorderType != PathType.Solid)
+            if (_BindingCreator.Type != PathType.Solid)
             {
-                _PathBinding = _BindingCreator.SetSolid(_PathBinding);
-            }
+                _BindingCreator.Type = PathType.Solid;
 
-            BorderType = PathType.Solid;
+                _PathBinding = _BindingCreator.Create(GeometryCreator.Create(this));
+            }
         }
 
         //------------Interface realization --------------------

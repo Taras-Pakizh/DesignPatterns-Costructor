@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Media;
 
 namespace DesignPatterns.Client.Drawing
 {
@@ -34,6 +35,8 @@ namespace DesignPatterns.Client.Drawing
         public ArrowCanvas(ReferenceCanvas reference)
         {
             Reference = reference;
+
+            _BindingCreator.FillBrush = Brushes.Black;
 
             _PathBinding = _BindingCreator.Create(GeometryCreator.Create(Reference));
         }

@@ -1,0 +1,30 @@
+﻿<Window x:Class="DesignPatterns.Client.Windows.ChooseElementWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:DesignPatterns.Client.Windows"
+        mc:Ignorable="d"
+        Title="Choose element" Height="150" Width="300" Background="Black">
+
+    <Window.Resources>
+
+        <ResourceDictionary Source="../Controllers/Styles.xaml"/>
+
+    </Window.Resources>
+
+    <StackPanel HorizontalAlignment="Center">
+
+        <TextBlock Text="Choose element:"/>
+
+        <ComboBox Name="Combo_Choose" ItemsSource="{Binding Path=ChooseElemets, Mode=OneWay}" 
+                  DisplayMemberPath="Text" SelectedValuePath="Element">
+            
+        </ComboBox>
+
+        <Button Content="OK" Command="{Binding Path=ElementChoose}"
+                CommandParameter="{Binding ElementName=Combo_Choose}"/>
+
+    </StackPanel>
+    
+</Window>

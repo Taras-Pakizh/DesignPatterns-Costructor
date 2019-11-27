@@ -35,7 +35,8 @@ namespace DesignPatterns.Client.Drawing
         public int Thickness { get; set; } = 2;
 
         public DoubleCollection StrokeDashArray { get; set; } 
-            = new DoubleCollection(new double[] { 20, 10 });
+            = new DoubleCollection(new double[] { 7, 3 });
+            //= new DoubleCollection(new double[] { 20, 10 });
 
         public PathBinding Create(PathGeometry geometry)
         {
@@ -61,6 +62,8 @@ namespace DesignPatterns.Client.Drawing
             path.Stroke = StrokeBrush;
 
             path.Fill = FillBrush;
+
+            path.Thickness = Thickness;
 
             path.StrokeDashCap = PenLineCap.Round;
 

@@ -51,7 +51,7 @@
                         <i:Interaction.Triggers>
                             <i:EventTrigger EventName="SelectionChanged">
                                 <i:InvokeCommandAction Command="{Binding Path=ActionChoose}" 
-                                      CommandParameter="{Binding ElementName=Combo_ReferenceType}" />
+                                      CommandParameter="{Binding ElementName=Combo_SubjectType}" />
                             </i:EventTrigger>
                         </i:Interaction.Triggers>
 
@@ -183,29 +183,95 @@
 
             </DockPanel>
 
-            <StackPanel x:Name="Panel_Info" Grid.Column="2">
+            <StackPanel x:Name="Panel_Info" Grid.Column="2" DataContext="{Binding Path=InfoPanel}">
 
-                <StackPanel x:Name="Panel_SubjectFocused" Visibility="Visible">
+                <StackPanel x:Name="Panel_SubjectFocused" Visibility="{Binding Path=SubjectVisibility}">
 
-                    <ComboBox x:Name="Combo_SName"/>
+                    <ComboBox x:Name="Combo_SName"
+                              ItemsSource="{Binding Path=AllSubjectViews, Mode=OneWay}"
+                              SelectedItem="{Binding Path=SelectedSubject, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" 
+                              DisplayMemberPath="Name">
 
-                    <ComboBox x:Name="Combo_SType"/>
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="SelectionChanged">
+                                <i:InvokeCommandAction Command="{Binding Path=SelectSubject}" 
+                                      CommandParameter="{Binding ElementName=Combo_SName}" />
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
 
-                    <Button Content="Open"/>
+                    </ComboBox>
 
-                    <Button Content="Delete"/>
+                    <ComboBox x:Name="Combo_SType" 
+                              ItemsSource="{Binding Path=SubjectTypes, Mode=OneWay}"
+                              SelectedItem="{Binding Path=SelectedSubjectType, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" 
+                              DisplayMemberPath="Text">
+
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="SelectionChanged">
+                                <i:InvokeCommandAction Command="{Binding Path=SelectSubjectType}" 
+                                      CommandParameter="{Binding ElementName=Combo_SType}" />
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
+
+                    </ComboBox>
+
+                    <Button Content="Open" Command="{Binding Path=Open}"/>
+
+                    <Button Content="Delete" Command="{Binding Path=DeleteSubject}"/>
 
                 </StackPanel>
 
-                <StackPanel x:Name="Panel_ReferenceFocused" Visibility="Collapsed">
+                <StackPanel x:Name="Panel_ReferenceFocused" Visibility="{Binding Path=RefVisibility}">
 
-                    <ComboBox x:Name="Combo_RType"/>
+                    <ComboBox x:Name="Combo_RType"
+                              ItemsSource="{Binding Path=ReferenceTypes, Mode=OneWay}"
+                              SelectedValuePath="Type">
 
-                    <ComboBox x:Name="Combo_RStart"/>
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="SelectionChanged">
+                                <i:InvokeCommandAction Command="{Binding Path=SelectRefType}" 
+                                      CommandParameter="{Binding ElementName=Combo_RType}" />
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
 
-                    <ComboBox x:Name="Combo_REnd"/>
-                    
-                    <Button Content="Delete"/>
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal">
+                                    <Image Source="{Binding Image}" Height="30" Width="150" />
+                                    <TextBlock Text="{Binding Path=Text}"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                        
+                    </ComboBox>
+
+                    <ComboBox x:Name="Combo_RStart"
+                              ItemsSource="{Binding Path=SubjectViews, Mode=OneWay}"
+                              SelectedValuePath="Id" DisplayMemberPath="Name">
+
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="SelectionChanged">
+                                <i:InvokeCommandAction Command="{Binding Path=SelectRefStart}" 
+                                      CommandParameter="{Binding ElementName=Combo_RStart}" />
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
+
+                    </ComboBox>
+
+                    <ComboBox x:Name="Combo_REnd"
+                              ItemsSource="{Binding Path=ReferenceTypes, Mode=OneWay}"
+                              SelectedValuePath="Type">
+
+                        <i:Interaction.Triggers>
+                            <i:EventTrigger EventName="SelectionChanged">
+                                <i:InvokeCommandAction Command="{Binding Path=SelectRefEnd}" 
+                                      CommandParameter="{Binding ElementName=Combo_REnd}" />
+                            </i:EventTrigger>
+                        </i:Interaction.Triggers>
+                        
+                    </ComboBox>
+
+                    <Button Content="Delete" Command="{Binding Path=DeleteRef}"/>
 
                 </StackPanel>
 

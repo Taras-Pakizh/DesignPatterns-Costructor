@@ -66,5 +66,23 @@ namespace DesignPatterns.Client
 
             _currentWindow.Show();
         }
+
+        public Window Dialog { get; set; }
+
+        public void ShowDialog()
+        {
+            Dialog = new ChooseElementWindow();
+
+            Dialog.DataContext = _context;
+
+            Dialog.Show();
+        }
+
+        public void CloseDialog()
+        {
+            Dialog.Close();
+
+            Dialog = null;
+        }
     }
 }

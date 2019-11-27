@@ -14,7 +14,7 @@ using DesignPatterns.Views;
 
 namespace DesignPatterns.Client.View
 {
-    class ApplicationView:MVVMView
+    public class ApplicationView:MVVMView
     {
         private TheAClient Client { get; } = new TheAClient();
 
@@ -25,6 +25,8 @@ namespace DesignPatterns.Client.View
 
             SubjectTypes = new ObservableCollection<ComboBoxSubjectItem>
                 (ComboBoxSubjectItem.GetValues());
+
+            InfoPanel = new InfoPanelView();
         }
         
         public string ErrorMessages { get; set; } = "";
@@ -122,10 +124,108 @@ namespace DesignPatterns.Client.View
                     LoadedDiagram = await Client.DiagramManager.GetAsync(CurrentPattern.Id);
                     break;
             }
-            
+        }
+        
+        public IEnumerable<ICanvasElement> ClickCanvas(Point point)
+        {
+            var elements = new List<ICanvasElement>();
+
+            foreach(var item in Elements)
+            {
+                if (item.IsEnter(point))
+                {
+                    elements.Add(item);
+                }
+            }
+
+            return elements;
         }
 
+        public SubjectView CreateSubject()
+        {
+            if (CurrentSubjectType == null)
+                return null;
+
+            return new SubjectView()
+            {
+                Name = "",
+                type = (SubjectType)CurrentSubjectType
+            };
+        }
+
+        public void SelectElement(ICanvasElement element)
+        {
+            if(SelectedElement != null && SelectedElement is SubjectCanvas)
+            {
+                ((SubjectCanvas)SelectedElement).UnFocus();
+            }
+
+            SelectedElement = element;
+            
+            if(SelectedElement is SubjectCanvas)
+            {
+                ((SubjectCanvas)SelectedElement).Focus();
+
+                InfoPanel.SubjectFocus((SubjectCanvas)SelectedElement);
+            }
+            else
+            {
+                InfoPanel.RefFocus((ReferenceCanvas)SelectedElement);
+            }
+
+            UpdateCanvas();
+        }
+
+        public void UpdateCanvas()
+        {
+            List<IObjectBinding> elements = new List<IObjectBinding>();
+            
+            foreach (var item in Elements)
+            {
+                if (item is ReferenceCanvas)
+                {
+                    ((ReferenceCanvas)item).Update();
+                }
+            }
+
+            foreach (var list in Elements.Select(x => x.ElementsBinding))
+            {
+                elements.AddRange(list);
+            }
+
+            CanvasBinding = new ObservableCollection<IObjectBinding>(elements);
+        }
+        
+
+        //--------------------------------------------------------------------------------------
         #region Properties
+
+        private InfoPanelView _infoPanel;
+        public InfoPanelView InfoPanel
+        {
+            get { return _infoPanel; }
+            set
+            {
+                _infoPanel = value;
+                OnPropertyChanged(nameof(InfoPanel));
+            }
+        }
+
+        private ObservableCollection<ComboBoxElementItem> _chooseElements;
+        public ObservableCollection<ComboBoxElementItem> ChooseElemets
+        {
+            get { return _chooseElements; }
+            set
+            {
+                _chooseElements = value;
+                OnPropertyChanged(nameof(ChooseElemets));
+            }
+        }
+
+        //-------------------Implement---------------------
+        public ICanvasElement SelectedElement { get; set; }
+        
+        public SubjectType? CurrentSubjectType { get; set; }
 
         private ObservableCollection<ComboBoxSubjectItem> _subjectTypes;
         public ObservableCollection<ComboBoxSubjectItem> SubjectTypes
@@ -137,6 +237,11 @@ namespace DesignPatterns.Client.View
                 OnPropertyChanged(nameof(SubjectTypes));
             }
         }
+
+        //-------------------Implement---------------------
+        public ReferenceContent ReferenceCreator { get; set; } = new ReferenceContent();
+
+        public ReferencesType? CurrentReferenceType { get; set; }
 
         private ObservableCollection<ComboBoxReferenceItem> _referenceTypes;
         public ObservableCollection<ComboBoxReferenceItem> ReferenceTypes
@@ -159,20 +264,49 @@ namespace DesignPatterns.Client.View
                 OnPropertyChanged(nameof(CurrentAction));
             }
         }
-
+        
         public IList<ICanvasElement> Elements = new List<ICanvasElement>();
-        private void _AddCanvasElement(ICanvasElement element)
+        public void AddCanvasElement(ICanvasElement element)
         {
             Elements.Add(element);
 
-            List<IObjectBinding> elements = new List<IObjectBinding>();
+            UpdateCanvas();
 
-            foreach(var list in Elements.Select(x => x.ElementsBinding))
+            InfoPanel = new InfoPanelView(this);
+        }
+        public void RemoveCanvasElement(ICanvasElement element)
+        {
+            Elements.Remove(element);
+
+            var toRemove = new List<ICanvasElement>();
+
+            foreach(var item in Elements)
             {
-                elements.AddRange(list);
+                if(item is ReferenceCanvas)
+                {
+                    var reference = (ReferenceCanvas)item;
+
+                    if(reference.Subject.Center == ((SubjectCanvas)element).Center)
+                    {
+                        toRemove.Add(item);
+                        toRemove.Add(reference.Arrow);
+                    }
+                    else if(reference.Target.Center == ((SubjectCanvas)element).Center)
+                    {
+                        toRemove.Add(item);
+                        toRemove.Add(reference.Arrow);
+                    }
+                }
             }
 
-            CanvasBinding = new ObservableCollection<IObjectBinding>(elements);
+            foreach(var item in toRemove)
+            {
+                Elements.Remove(item);
+            }
+
+            UpdateCanvas();
+
+            InfoPanel = new InfoPanelView(this);
         }
 
         private ObservableCollection<IObjectBinding> _canvasBinding;
@@ -276,6 +410,9 @@ namespace DesignPatterns.Client.View
 
         #endregion
 
+
+
+        //-------------------------------------------------
         #region Commands
 
         private Command _CanvasClick;
@@ -289,16 +426,90 @@ namespace DesignPatterns.Client.View
                 return _CanvasClick;
             }
         }
-        
         private void _CanvasClick_Exec(object parameter)
         {
             Point mousePos = Mouse.GetPosition((IInputElement)parameter);
 
-            var subject = LoadedDiagram.Subjects.Where(x => x.type == SubjectType.Class).First();
+            var elements = ClickCanvas(mousePos);
 
-            var element = new SubjectCanvas(subject, mousePos);
+            switch (CurrentAction)
+            {
+                case CanvasActionType.Cursor:
 
-            _AddCanvasElement(element);
+                    if(elements.Count() == 1)
+                    {
+                        SelectElement(elements.Single());
+                    }
+                    else if(SelectedElement is SubjectCanvas)
+                    {
+                        ((SubjectCanvas)SelectedElement).Move(mousePos);
+
+                        UpdateCanvas();
+
+                        SelectedElement = null;
+                    }
+
+                    break;
+                case CanvasActionType.ObjectCreate:
+
+                    var subject = new SubjectCanvas(CreateSubject(), mousePos);
+
+                    AddCanvasElement(subject);
+
+                    break;
+                case CanvasActionType.ReferenceCreate:
+                    
+                    if (elements.Count() == 1 && elements.Single() is SubjectCanvas)
+                    {
+                        ReferenceCreator.Click((SubjectCanvas)elements.Single(), 
+                            (ReferencesType)CurrentReferenceType);
+
+                        if (ReferenceCreator.IsReady)
+                        {
+                            var bindings = ReferenceCreator.CreateReference();
+
+                            AddCanvasElement(bindings[0]);
+
+                            AddCanvasElement(bindings[1]);
+
+                            ReferenceCreator.Clear();
+                        }
+                    }
+                    else
+                    {
+                        ReferenceCreator.Clear();
+                    }
+
+                    break;
+                default:
+                    return;
+            }
+        }
+
+        private Command _ElementChoose;
+        public ICommand ElementChoose
+        {
+            get
+            {
+                if (_ElementChoose != null)
+                    return _ElementChoose;
+                _ElementChoose = new Command(_ElementChoose_Exec);
+                return _ElementChoose;
+            }
+        }
+        private void _ElementChoose_Exec(object parameter)
+        {
+            var combo = (ComboBox)parameter;
+
+            if(combo.SelectedIndex == -1)
+            {
+                MessageBox.Show("Choose one element");
+                return;
+            }
+
+            SelectElement((ICanvasElement)combo.SelectedValue);
+
+            ((App)Application.Current).CloseDialog();
         }
 
         private Command _ActionChoose;
@@ -312,7 +523,6 @@ namespace DesignPatterns.Client.View
                 return _ActionChoose;
             }
         }
-
         private void _ActionChoose_Exec(object parameter)
         {
             var control = (Control)parameter;
@@ -321,19 +531,25 @@ namespace DesignPatterns.Client.View
             {
                 case "Button_Cursor":
                     CurrentAction = CanvasActionType.Cursor;
+                    ReferenceCreator.Clear();
                     break;
                 case "Combo_SubjectType":
                     CurrentAction = CanvasActionType.ObjectCreate;
+                    var combo = (ComboBox)control;
+                    CurrentSubjectType = (SubjectType)combo.SelectedValue;
+                    ReferenceCreator.Clear();
                     break;
                 case "Combo_ReferenceType":
                     CurrentAction = CanvasActionType.ReferenceCreate;
+                    combo = (ComboBox)control;
+                    CurrentReferenceType = (ReferencesType)combo.SelectedValue;
                     break;
                 default:
                     MessageBox.Show("Unknown control name");
                     return;
             }
         }
-
+        
         #endregion
     }
 }

@@ -31,7 +31,7 @@ namespace DesignPatterns.Client.Drawing
 
             SubjectCanvas first = null; SubjectCanvas second = null;
 
-            if (vector.X <= vector.Y)
+            if (Math.Abs(vector.X) <= Math.Abs(vector.Y))
             {
                 if(reference.Subject.Center.Y < reference.Target.Center.Y)
                 {
@@ -135,6 +135,8 @@ namespace DesignPatterns.Client.Drawing
             line.Segments.Add(new PolyLineSegment(new Point[] { points[1], points[2]}, true));
 
             line.IsClosed = false;
+
+            line.IsFilled = false;
             
             lineGeometry.Figures.Add(line);
             

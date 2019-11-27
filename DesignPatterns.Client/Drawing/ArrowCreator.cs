@@ -99,7 +99,7 @@ namespace DesignPatterns.Client.Drawing
 
             if (isHorizontal)
             {
-                if (start.X < end.X)
+                if (start.X > end.X)
                 {
                     stepLength = -stepLength;
                 }
@@ -126,7 +126,7 @@ namespace DesignPatterns.Client.Drawing
             }
             else
             {
-                if (start.Y < end.Y)
+                if (start.Y > end.Y)
                 {
                     stepLength = -stepLength;
                 }

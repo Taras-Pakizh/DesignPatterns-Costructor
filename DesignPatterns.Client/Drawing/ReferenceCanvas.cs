@@ -68,7 +68,18 @@ namespace DesignPatterns.Client.Drawing
             {
                 _BindingCreator.Type = PathType.Dashed;
             }
+            else
+            {
+                _BindingCreator.Type = PathType.Solid;
+            }
 
+            _PathBinding = _BindingCreator.Create(GeometryCreator.Create(this));
+
+            Arrow.Update();
+        }
+
+        public void Update()
+        {
             _PathBinding = _BindingCreator.Create(GeometryCreator.Create(this));
 
             Arrow.Update();
