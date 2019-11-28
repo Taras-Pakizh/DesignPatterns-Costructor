@@ -28,7 +28,7 @@ namespace DesignPatterns.Client.Drawing
 
         public Brush StrokeBrush { get; set; } = Brushes.Black;
 
-        public Brush FillBrush { get; set; } = Brushes.Aquamarine;
+        public Brush FillBrush { get; set; } = Brushes.DarkGoldenrod;
 
         public PathType Type { get; set; } = PathType.Solid;
 

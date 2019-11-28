@@ -72,14 +72,7 @@ namespace DesignPatterns.Client.Drawing
 
         private IEnumerable<PathFigure> _Assosiation(Point start, Point end, bool isHorizontal)
         {
-            PathFigure figure = new PathFigure()
-            {
-                StartPoint = start
-            };
-
-            figure.Segments.Add(new LineSegment(end, true));
-
-            return new List<PathFigure>() { figure };
+            return _Dependency(start, end, isHorizontal);
         }
 
         /// <summary>

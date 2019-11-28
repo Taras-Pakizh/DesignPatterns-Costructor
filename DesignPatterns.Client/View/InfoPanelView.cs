@@ -15,34 +15,16 @@ namespace DesignPatterns.Client.View
     public class InfoPanelView : MVVMView
     {
         private IEnumerable<SubjectCanvas> _SubjectCanvases;
-
-        private IEnumerable<ReferenceCanvas> _RefCanvases;
         
         private ApplicationView _MainView;
         
         public ICanvasElement FocusedElement;
 
-        public InfoPanelView()
-        {
-            UnFocus();
-        }
+        public bool IsCommandEnable { get; set; } = true;
+        
 
         public InfoPanelView(ApplicationView view)
         {
-            _SubjectCanvases = 
-                (view.Elements.Where(x => x is SubjectCanvas)
-                .Select(y=>(SubjectCanvas)y) .ToList());
-
-            _RefCanvases =
-                (view.Elements.Where(x => x is ReferenceCanvas)
-                .Select(y=>(ReferenceCanvas)y).ToList());
-            
-            AllSubjectViews = new ObservableCollection<SubjectView>(view.LoadedDiagram.Subjects
-                .Where(x=>x.type == SubjectType.Class || x.type == SubjectType.Abstract_Class || x.type == SubjectType.Interface));
-
-            SubjectViews = new ObservableCollection<SubjectView>
-                (_SubjectCanvases.Select(x => x.View).ToList());
-            
             _MainView = view;
 
             ReferenceTypes = _MainView.ReferenceTypes;
@@ -52,43 +34,43 @@ namespace DesignPatterns.Client.View
             UnFocus();
         }
 
+
+
         public void UnFocus()
         {
             SubjectVisibility = Visibility.Collapsed;
 
             RefVisibility = Visibility.Collapsed;
+
+            FocusedElement = null;
         }
 
         public void SubjectFocus(SubjectCanvas element)
         {
             FocusedElement = element;
-
+            
             SubjectVisibility = Visibility.Visible;
 
             RefVisibility = Visibility.Collapsed;
 
-
-            SelectedSubject = ((SubjectCanvas)FocusedElement).View;
-
-            SelectedSubjectType = SubjectTypes.Single(x => x.Type == SelectedSubject.type);
-
-            AllSubjectViews = new ObservableCollection<SubjectView>(_MainView.LoadedDiagram.Subjects
-                .Where(x => x.type == SelectedSubject.type));
+            Update();
         }
 
         public void RefFocus(ReferenceCanvas element)
         {
             FocusedElement = element;
-
+            
             SubjectVisibility = Visibility.Collapsed;
 
             RefVisibility = Visibility.Visible;
-            
-            //------------Implement-------------
+
+            Update();
         }
 
         public void Update()
         {
+            IsCommandEnable = false;
+
             if(FocusedElement is SubjectCanvas)
             {
                 SelectedSubject = ((SubjectCanvas)FocusedElement).View;
@@ -97,12 +79,38 @@ namespace DesignPatterns.Client.View
 
                 AllSubjectViews = new ObservableCollection<SubjectView>(_MainView.LoadedDiagram.Subjects
                     .Where(x => x.type == SelectedSubject.type).ToList());
+
+                if(SelectedSubject?.Name == "")
+                {
+                    SelectedSubject = null;
+                }
             }
-            
+            else if (FocusedElement is ReferenceCanvas)
+            {
+                var element = (ReferenceCanvas)FocusedElement;
+
+                _SubjectCanvases = (_MainView.Elements.Where(x => x is SubjectCanvas)
+                    .Select(y => (SubjectCanvas)y).ToList());
+
+                SubjectViews = new ObservableCollection<SubjectView>
+                    (_SubjectCanvases.Select(x => x.View).ToList());
+
+                SelectedRefType = ReferenceTypes
+                    .Where(x => x.Type == element.View.type).Single();
+
+                SelectedStart = element.Subject.View;
+
+                SelectedEnd = element.Target.View;
+            }
+
+            IsCommandEnable = true;
+
             _MainView.UpdateCanvas();
         }
 
 
+
+        //----------------------------------------------------------------------------------
         #region PropertiesBinding
 
         public Visibility _SubjecyVisibility;
@@ -134,14 +142,6 @@ namespace DesignPatterns.Client.View
             set
             {
                 _SelectedSubject = value;
-                if(value == null)
-                {
-                    _SelectedSubject = new SubjectView()
-                    {
-                        Name = "",
-                        type = SelectedSubjectType.Type
-                    };
-                }
                 OnPropertyChanged(nameof(SelectedSubject));
             }
         }
@@ -190,8 +190,8 @@ namespace DesignPatterns.Client.View
             }
         }
 
-        private ReferencesType? _SelectedRefType;
-        public ReferencesType? SelectedRefType
+        private ComboBoxReferenceItem _SelectedRefType;
+        public ComboBoxReferenceItem SelectedRefType
         {
             get { return _SelectedRefType; }
             set
@@ -248,6 +248,9 @@ namespace DesignPatterns.Client.View
         #endregion
 
 
+
+
+        //-----------------------------------------------------------------------------------
         #region Commands
 
         private Command _SelectSubject;
@@ -263,13 +266,23 @@ namespace DesignPatterns.Client.View
         }
         private void _SelectSubject_Exec(object parameter)
         {
-            var element = (SubjectCanvas)FocusedElement;
+            if (!IsCommandEnable)
+                return;
+
+            var element = FocusedElement as SubjectCanvas;
+
+            if (element == null)
+                return;
+
+            IsCommandEnable = false;
 
             element.View = SelectedSubject;
 
             element.Update();
             
             Update();
+
+            IsCommandEnable = true;
         }
 
         private Command _SelectSubjectType;
@@ -285,8 +298,16 @@ namespace DesignPatterns.Client.View
         }
         private void _SelectSubjectType_Exec(object parameter)
         {
-            var element = (SubjectCanvas)FocusedElement;
+            if (!IsCommandEnable)
+                return;
 
+            var element = FocusedElement as SubjectCanvas;
+
+            if (element == null)
+                return;
+
+            IsCommandEnable = false;
+            
             element.View = new SubjectView()
             {
                 Name = "",
@@ -296,6 +317,8 @@ namespace DesignPatterns.Client.View
             element.Update();
             
             Update();
+
+            IsCommandEnable = true;
         }
 
         private Command _SelectRefType;
@@ -305,13 +328,29 @@ namespace DesignPatterns.Client.View
             {
                 if (_SelectRefType != null)
                     return _SelectRefType;
-                _SelectRefType = new Command(_SelectRef_Exec);
+                _SelectRefType = new Command(_SelectRefType_Exec);
                 return _SelectRefType;
             }
         }
-        private void _SelectRef_Exec(object parameter)
+        private void _SelectRefType_Exec(object parameter)
         {
-            
+            if (!IsCommandEnable)
+                return;
+
+            var element = FocusedElement as ReferenceCanvas;
+
+            if (element == null)
+                return;
+
+            IsCommandEnable = false;
+
+            element.View.type = SelectedRefType.Type;
+
+            element.Update();
+
+            Update();
+
+            IsCommandEnable = true;
         }
 
         private Command _SelectRefStart;
@@ -327,7 +366,25 @@ namespace DesignPatterns.Client.View
         }
         private void _SelectRefStart_Exec(object parameter)
         {
+            if (!IsCommandEnable)
+                return;
+
+            var element = FocusedElement as ReferenceCanvas;
+
+            if (element == null)
+                return;
+
+            IsCommandEnable = false;
+
+            var newSubject = _SubjectCanvases.Where(x => x.View == SelectedStart).Single();
+
+            element.View.subject_Id = newSubject.View.Id;
+
+            element.Update(element.View, newSubject, element.Target);
             
+            Update();
+
+            IsCommandEnable = true;
         }
 
         private Command _SelectRefEnd;
@@ -343,7 +400,25 @@ namespace DesignPatterns.Client.View
         }
         private void _SelectRefEnd_Exec(object parameter)
         {
-            
+            if (!IsCommandEnable)
+                return;
+
+            var element = FocusedElement as ReferenceCanvas;
+
+            if (element == null)
+                return;
+
+            IsCommandEnable = false;
+
+            var newTarget = _SubjectCanvases.Where(x => x.View == SelectedEnd).Single();
+
+            element.View.target_Id = newTarget.View.Id;
+
+            element.Update(element.View, element.Subject, newTarget);
+
+            Update();
+
+            IsCommandEnable = true;
         }
 
         private Command _Open;
@@ -376,6 +451,8 @@ namespace DesignPatterns.Client.View
         private void _DeleteSubject_Exec(object parameter)
         {
             _MainView.RemoveCanvasElement(FocusedElement);
+
+            UnFocus();
         }
 
         private Command _DeleteRef;
@@ -391,7 +468,9 @@ namespace DesignPatterns.Client.View
         }
         private void _DeleteRef_Exec(object parameter)
         {
-            
+            _MainView.RemoveCanvasElement(FocusedElement);
+
+            UnFocus();
         }
 
         #endregion

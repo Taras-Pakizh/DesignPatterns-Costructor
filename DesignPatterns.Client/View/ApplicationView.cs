@@ -26,7 +26,7 @@ namespace DesignPatterns.Client.View
             SubjectTypes = new ObservableCollection<ComboBoxSubjectItem>
                 (ComboBoxSubjectItem.GetValues());
 
-            InfoPanel = new InfoPanelView();
+            InfoPanel = new InfoPanelView(this);
         }
         
         public string ErrorMessages { get; set; } = "";
@@ -170,7 +170,7 @@ namespace DesignPatterns.Client.View
             }
             else
             {
-                InfoPanel.RefFocus((ReferenceCanvas)SelectedElement);
+                InfoPanel.RefFocus(((ArrowCanvas)SelectedElement).Reference);
             }
 
             UpdateCanvas();
@@ -221,8 +221,7 @@ namespace DesignPatterns.Client.View
                 OnPropertyChanged(nameof(ChooseElemets));
             }
         }
-
-        //-------------------Implement---------------------
+        
         public ICanvasElement SelectedElement { get; set; }
         
         public SubjectType? CurrentSubjectType { get; set; }
@@ -237,8 +236,7 @@ namespace DesignPatterns.Client.View
                 OnPropertyChanged(nameof(SubjectTypes));
             }
         }
-
-        //-------------------Implement---------------------
+        
         public ReferenceContent ReferenceCreator { get; set; } = new ReferenceContent();
 
         public ReferencesType? CurrentReferenceType { get; set; }
@@ -271,42 +269,49 @@ namespace DesignPatterns.Client.View
             Elements.Add(element);
 
             UpdateCanvas();
-
-            InfoPanel = new InfoPanelView(this);
+            
+            InfoPanel.Update();
         }
         public void RemoveCanvasElement(ICanvasElement element)
         {
             Elements.Remove(element);
 
-            var toRemove = new List<ICanvasElement>();
-
-            foreach(var item in Elements)
+            if(element is SubjectCanvas)
             {
-                if(item is ReferenceCanvas)
-                {
-                    var reference = (ReferenceCanvas)item;
+                var toRemove = new List<ICanvasElement>();
 
-                    if(reference.Subject.Center == ((SubjectCanvas)element).Center)
+                foreach (var item in Elements)
+                {
+                    if (item is ReferenceCanvas)
                     {
-                        toRemove.Add(item);
-                        toRemove.Add(reference.Arrow);
-                    }
-                    else if(reference.Target.Center == ((SubjectCanvas)element).Center)
-                    {
-                        toRemove.Add(item);
-                        toRemove.Add(reference.Arrow);
+                        var reference = (ReferenceCanvas)item;
+
+                        if (reference.Subject.Center == ((SubjectCanvas)element).Center)
+                        {
+                            toRemove.Add(item);
+                            toRemove.Add(reference.Arrow);
+                        }
+                        else if (reference.Target.Center == ((SubjectCanvas)element).Center)
+                        {
+                            toRemove.Add(item);
+                            toRemove.Add(reference.Arrow);
+                        }
                     }
                 }
-            }
 
-            foreach(var item in toRemove)
+                foreach (var item in toRemove)
+                {
+                    Elements.Remove(item);
+                }
+            }
+            if(element is ReferenceCanvas)
             {
-                Elements.Remove(item);
+                Elements.Remove(((ReferenceCanvas)element).Arrow);
             }
-
+            
             UpdateCanvas();
-
-            InfoPanel = new InfoPanelView(this);
+            
+            InfoPanel.Update();
         }
 
         private ObservableCollection<IObjectBinding> _canvasBinding;
@@ -412,7 +417,7 @@ namespace DesignPatterns.Client.View
 
 
 
-        //-------------------------------------------------
+        //--------------------------------------------------------------------------------------
         #region Commands
 
         private Command _CanvasClick;
@@ -436,6 +441,14 @@ namespace DesignPatterns.Client.View
             {
                 case CanvasActionType.Cursor:
 
+                    if(elements.Count() > 1)
+                    {
+                        ChooseElemets = new ObservableCollection<ComboBoxElementItem>
+                            (ComboBoxElementItem.GetValues(elements));
+
+                        ((App)Application.Current).ShowDialog();
+                    }
+
                     if(elements.Count() == 1)
                     {
                         SelectElement(elements.Single());
@@ -446,19 +459,30 @@ namespace DesignPatterns.Client.View
 
                         UpdateCanvas();
 
+                        if (SelectedElement is SubjectCanvas)
+                        {
+                            ((SubjectCanvas)SelectedElement).UnFocus();
+
+                            UpdateCanvas();
+                        }
+
                         SelectedElement = null;
                     }
 
                     break;
                 case CanvasActionType.ObjectCreate:
 
+                    InfoPanel.UnFocus();
+                    
                     var subject = new SubjectCanvas(CreateSubject(), mousePos);
 
                     AddCanvasElement(subject);
 
                     break;
                 case CanvasActionType.ReferenceCreate:
-                    
+
+                    InfoPanel.UnFocus();
+
                     if (elements.Count() == 1 && elements.Single() is SubjectCanvas)
                     {
                         ReferenceCreator.Click((SubjectCanvas)elements.Single(), 

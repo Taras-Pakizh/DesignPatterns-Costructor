@@ -154,7 +154,7 @@
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
                             <Canvas x:Name="Canvas_WorkSpace" Visibility="Visible" 
-                                    Background="LightPink" Width="{Binding Path=ActualWidth, ElementName=Panel_WorkSpace}">
+                                    Background="#FFA4A890" Width="{Binding Path=ActualWidth, ElementName=Panel_WorkSpace}">
 
                                 <Canvas.InputBindings>
                                     <MouseBinding Gesture="LeftClick" Command="{Binding Path=CanvasClick}" 
@@ -225,7 +225,7 @@
 
                     <ComboBox x:Name="Combo_RType"
                               ItemsSource="{Binding Path=ReferenceTypes, Mode=OneWay}"
-                              SelectedValuePath="Type">
+                              SelectedItem="{Binding Path=SelectedRefType, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}">
 
                         <i:Interaction.Triggers>
                             <i:EventTrigger EventName="SelectionChanged">
@@ -247,7 +247,8 @@
 
                     <ComboBox x:Name="Combo_RStart"
                               ItemsSource="{Binding Path=SubjectViews, Mode=OneWay}"
-                              SelectedValuePath="Id" DisplayMemberPath="Name">
+                              SelectedItem="{Binding Path=SelectedStart, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" 
+                              DisplayMemberPath="Name">
 
                         <i:Interaction.Triggers>
                             <i:EventTrigger EventName="SelectionChanged">
@@ -259,8 +260,9 @@
                     </ComboBox>
 
                     <ComboBox x:Name="Combo_REnd"
-                              ItemsSource="{Binding Path=ReferenceTypes, Mode=OneWay}"
-                              SelectedValuePath="Type">
+                              ItemsSource="{Binding Path=SubjectViews, Mode=OneWay}"
+                              SelectedItem="{Binding Path=SelectedEnd, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" 
+                              DisplayMemberPath="Name">
 
                         <i:Interaction.Triggers>
                             <i:EventTrigger EventName="SelectionChanged">

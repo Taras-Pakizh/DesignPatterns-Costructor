@@ -76,6 +76,8 @@ namespace DesignPatterns.Client
             Dialog.DataContext = _context;
 
             Dialog.Show();
+
+            _currentWindow.IsEnabled = false;
         }
 
         public void CloseDialog()
@@ -83,6 +85,15 @@ namespace DesignPatterns.Client
             Dialog.Close();
 
             Dialog = null;
+
+            _currentWindow.IsEnabled = true;
+        }
+
+        public void DetermineDialog()
+        {
+            Dialog = null;
+
+            _currentWindow.IsEnabled = true;
         }
     }
 }

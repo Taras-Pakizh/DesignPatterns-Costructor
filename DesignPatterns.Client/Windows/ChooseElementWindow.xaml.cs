@@ -23,5 +23,10 @@ namespace DesignPatterns.Client.Windows
         {
             InitializeComponent();
         }
+
+        private void Window_Closed(object sender, EventArgs e)
+        {
+            ((App)Application.Current).DetermineDialog();
+        }
     }
 }
