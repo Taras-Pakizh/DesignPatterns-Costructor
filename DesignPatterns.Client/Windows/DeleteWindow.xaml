@@ -1,0 +1,39 @@
+﻿<Window x:Class="DesignPatterns.Client.Windows.DeleteWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:DesignPatterns.Client.Windows"
+        mc:Ignorable="d"
+        Title="" Height="200" Width="400" Background="Black" 
+        Closed="Window_Closed" Loaded="Window_Loaded">
+
+    <Window.Resources>
+
+        <ResourceDictionary Source="../Controllers/Styles.xaml"/>
+
+    </Window.Resources>
+
+    <StackPanel HorizontalAlignment="Center">
+
+        <TextBlock Name="Text_Message"/>
+
+        <Grid>
+
+            <Grid.ColumnDefinitions>
+                
+                <ColumnDefinition/>
+                <ColumnDefinition/>
+                
+            </Grid.ColumnDefinitions>
+
+            <Button Grid.Column="0" Content="OK" Command="{Binding Path=SubmitDelete}"
+                CommandParameter="OK"/>
+
+            <Button Grid.Column="1" Content="Cancel" Command="{Binding Path=SubmitDelete}"/>
+            
+        </Grid>
+        
+    </StackPanel>
+
+</Window>

@@ -80,6 +80,17 @@ namespace DesignPatterns.Client
             _currentWindow.IsEnabled = false;
         }
 
+        public void ShowDialog(MVVMView context, Window dialog)
+        {
+            Dialog = dialog;
+
+            Dialog.DataContext = context;
+
+            Dialog.Show();
+
+            _currentWindow.IsEnabled = false;
+        }
+
         public void CloseDialog()
         {
             Dialog.Close();

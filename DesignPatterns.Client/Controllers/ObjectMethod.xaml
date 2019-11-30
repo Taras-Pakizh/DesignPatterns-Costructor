@@ -4,8 +4,10 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:DesignPatterns.Client.Controllers"
+             xmlns:view="clr-namespace:DesignPatterns.Client.View"
              mc:Ignorable="d" 
-             Background="#111111">
+             Background="#111111"
+             Name="HomeController">
 
     <UserControl.Resources>
 
@@ -14,19 +16,90 @@
     </UserControl.Resources>
 
     <DockPanel Background="#111111" Margin="5"
-               VerticalAlignment="Stretch" LastChildFill="True">
+               VerticalAlignment="Stretch" LastChildFill="False">
 
-        <ComboBox x:Name="Combo_MName" DockPanel.Dock="Left"/>
+        <DockPanel LastChildFill="False" DockPanel.Dock="Top">
 
-        <Button x:Name="Button_Delete" DockPanel.Dock="Right">
+            <ComboBox x:Name="Combo_MName" DockPanel.Dock="Left"
+                  ItemsSource="{Binding ElementName=HomeController, Path=Methods, Mode=TwoWay}"
+                  SelectedItem="{Binding ElementName=HomeController, Path=SelectedMethod, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" 
+                  DisplayMemberPath="Name">
 
-            <Image Source="../images/close-512.png" Height="30" Width="30"/>
+            </ComboBox>
 
-        </Button>
+            <ComboBox x:Name="Combo_MReturns" DockPanel.Dock="Left"
+                  ItemsSource="{Binding ElementName=HomeController, Path=ReturnTypes, Mode=TwoWay}"
+                  SelectedItem="{Binding ElementName=HomeController, Path=SelectedReturnType, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" 
+                  DisplayMemberPath="Name">
 
-        <ComboBox x:Name="Combo_MReturns" DockPanel.Dock="Left"/>
+            </ComboBox>
 
-        <local:Parameters/>
+            <Button x:Name="Button_Delete" DockPanel.Dock="Left"
+                Command="{Binding Path=RemoveMethod}"
+                CommandParameter="{Binding ElementName=HomeController, Path=Id}">
+
+                <Image Source="../images/close-512.png" Height="30" Width="30"/>
+
+            </Button>
+
+        </DockPanel>
+
+        <StackPanel Background="#222222" DockPanel.Dock="Left" Margin="50, 5, 5, 5">
+
+            <StackPanel Orientation="Horizontal" Background="#222222"
+                            HorizontalAlignment="Left">
+
+                <TextBlock Text="Parameters:" VerticalAlignment="Center"/>
+
+                <Button x:Name="Button_PParameter" VerticalAlignment="Center"
+                    Command="{Binding Path=AddParameter}"
+                    CommandParameter="{Binding ElementName=HomeController, Path=Id}">
+
+                    <Image Source="../images/plus-512.png" Height="30" Width="30"/>
+
+                </Button>
+
+            </StackPanel>
+
+            <StackPanel Background="#222222" x:Name="Panel_Parameters">
+
+                <StackPanel Background="#222222" Orientation="Horizontal">
+
+                    <TextBlock Text="Name:"/>
+
+                    <TextBlock Text="Type:"/>
+
+                </StackPanel>
+
+                <ItemsControl ItemsSource="{Binding ElementName=HomeController, Path=Parameters}">
+
+                    <ItemsControl.Resources>
+
+                        <DataTemplate DataType="{x:Type view:FormElement}">
+
+                            <local:Parameters AllParameters="{Binding Path=Elements}"
+                                              SelectedParameter="{Binding Path=SelectedElement}"
+                                              Types="{Binding Path=Types}"
+                                              SelectedType="{Binding Path=SelectedType}"
+                                              Id="{Binding Path=Id}">
+
+                            </local:Parameters>
+
+                        </DataTemplate>
+
+                    </ItemsControl.Resources>
+
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+
+                </ItemsControl>
+
+            </StackPanel>
+
+        </StackPanel>
 
     </DockPanel>
 

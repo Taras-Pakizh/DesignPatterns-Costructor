@@ -5,7 +5,8 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:DesignPatterns.Client.Windows"
         mc:Ignorable="d"
-        Title="Choose element" Height="150" Width="300" Background="Black" Closed="Window_Closed">
+        Title="Choose element" Height="150" Width="300" Background="Black" 
+        Closed="Window_Closed">
 
     <Window.Resources>
 

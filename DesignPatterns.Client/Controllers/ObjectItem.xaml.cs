@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DesignPatterns.Views;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -24,5 +25,60 @@ namespace DesignPatterns.Client.Controllers
         {
             InitializeComponent();
         }
+
+        public static readonly DependencyProperty IdProperty;
+        public int Id
+        {
+            get { return (int)GetValue(IdProperty); }
+            set { SetValue(IdProperty, value); }
+        }
+
+        public static readonly DependencyProperty PropertiesProperty;
+        public IEnumerable<SubjectPropertyView> Properties
+        {
+            get { return (IEnumerable<SubjectPropertyView>)GetValue(PropertiesProperty); }
+            set { SetValue(PropertiesProperty, value); }
+        }
+
+        public static readonly DependencyProperty SelectedPropertyProperty;
+        public SubjectPropertyView SelectedProperty
+        {
+            get { return (SubjectPropertyView)GetValue(SelectedPropertyProperty); }
+            set { SetValue(SelectedPropertyProperty, value); }
+        }
+
+        public static readonly DependencyProperty TypesProperty;
+        public IEnumerable<SubjectView> Types
+        {
+            get { return (IEnumerable<SubjectView>)(GetValue(TypesProperty)); }
+            set { SetValue(TypesProperty, value); }
+        }
+
+        public static readonly DependencyProperty SelectedTypeProperty;
+        public SubjectView SelectedType
+        {
+            get { return (SubjectView)GetValue(SelectedTypeProperty); }
+            set { SetValue(SelectedTypeProperty, value); }
+        }
+
+        static ObjectItem()
+        {
+            PropertiesProperty = DependencyProperty.Register
+                (nameof(Properties), typeof(IEnumerable<SubjectPropertyView>), typeof(ObjectItem));
+
+            SelectedPropertyProperty = DependencyProperty.Register
+                (nameof(SelectedProperty), typeof(SubjectPropertyView), typeof(ObjectItem));
+
+            TypesProperty = DependencyProperty.Register
+                (nameof(Types), typeof(IEnumerable<SubjectView>), typeof(ObjectItem));
+
+            SelectedTypeProperty = DependencyProperty.Register
+                (nameof(SelectedType), typeof(SubjectView), typeof(ObjectItem));
+
+            IdProperty = DependencyProperty.Register
+                (nameof(Id), typeof(int), typeof(ObjectItem));
+        }
+
+
     }
 }

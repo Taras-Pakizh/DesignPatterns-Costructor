@@ -4,6 +4,8 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:DesignPatterns.Client.Controllers"
+             xmlns:view="clr-namespace:DesignPatterns.Client.View"
+             xmlns:controllers="clr-namespace:DesignPatterns.Client.Controllers"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800" Background="Black">
 
@@ -20,19 +22,13 @@
 
             <StackPanel Background="Black" Orientation="Horizontal" HorizontalAlignment="Right">
 
-                <Button x:Name="Button_Close">
+                <Button x:Name="Button_Close" Command="{Binding Path=Close}">
 
                     <Image Source="../images/close-512.png" Height="30" Width="30"/>
 
                 </Button>
 
             </StackPanel>
-
-        </StackPanel>
-
-        <StackPanel DockPanel.Dock="Bottom">
-
-            <Button Content="Save" x:Name="Button_Save"/>
 
         </StackPanel>
 
@@ -47,7 +43,8 @@
 
                         <TextBlock Text="Properties:" VerticalAlignment="Center"/>
 
-                        <Button x:Name="Button_PProperties" VerticalAlignment="Center">
+                        <Button x:Name="Button_PProperties" VerticalAlignment="Center"
+                                Command="{Binding Path=AddProperty}">
 
                             <Image Source="../images/plus-512.png" Height="30" Width="30"/>
 
@@ -65,6 +62,31 @@
 
                         </StackPanel>
 
+                        <ItemsControl ItemsSource="{Binding Path=PropertyElements}">
+
+                            <ItemsControl.Resources>
+
+                                <DataTemplate DataType="{x:Type view:FormElement}">
+
+                                    <controllers:ObjectItem Properties="{Binding Path=Elements}"
+                                                            SelectedProperty="{Binding Path=SelectedElement}"
+                                                            Types="{Binding Path=Types}"
+                                                            SelectedType="{Binding Path=SelectedType}"
+                                                            Id="{Binding Path=Id}"
+                                    />
+
+                                </DataTemplate>
+
+                            </ItemsControl.Resources>
+
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <StackPanel/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+
+                        </ItemsControl>
+
                     </StackPanel>
 
                 </StackPanel>
@@ -76,7 +98,8 @@
 
                         <TextBlock Text="Methods:" VerticalAlignment="Center"/>
 
-                        <Button x:Name="Button_PMethods" VerticalAlignment="Center">
+                        <Button x:Name="Button_PMethods" VerticalAlignment="Center"
+                                Command="{Binding Path=AddMethod}">
 
                             <Image Source="../images/plus-512.png" Height="30" Width="30"/>
 
@@ -84,7 +107,7 @@
 
                     </StackPanel>
 
-                    <StackPanel Background="#222222" Orientation="Horizontal" x:Name="Panel_Methods">
+                    <StackPanel Background="#222222" x:Name="Panel_Methods">
 
                         <StackPanel Background="#222222" Orientation="Horizontal">
 
@@ -93,7 +116,33 @@
                             <TextBlock Text="Returns:"/>
 
                         </StackPanel>
-                        
+
+                        <ItemsControl ItemsSource="{Binding Path=MethodElements}">
+
+                            <ItemsControl.Resources>
+
+                                <DataTemplate DataType="{x:Type view:FormElement}">
+
+                                    <controllers:ObjectMethod Methods="{Binding Path=Elements}"
+                                                              SelectedMethod="{Binding Path=SelectedElement}"
+                                                              ReturnTypes="{Binding Path=Types}"
+                                                              SelectedReturnType="{Binding Path=SelectedType}"
+                                                              Parameters="{Binding Path=SubElements}"
+                                                              Id="{Binding Path=Id}"
+                                    />
+
+                                </DataTemplate>
+
+                            </ItemsControl.Resources>
+
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <StackPanel/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+
+                        </ItemsControl>
+
                     </StackPanel>
 
                 </StackPanel>

@@ -1,4 +1,5 @@
 ﻿using DesignPatterns.Client.Drawing;
+using DesignPatterns.Client.Windows;
 using DesignPatterns.Views;
 using System;
 using System.Collections.Generic;
@@ -30,6 +31,8 @@ namespace DesignPatterns.Client.View
             ReferenceTypes = _MainView.ReferenceTypes;
 
             SubjectTypes = _MainView.SubjectTypes;
+
+            IsEnable = true;
 
             UnFocus();
         }
@@ -112,6 +115,17 @@ namespace DesignPatterns.Client.View
 
         //----------------------------------------------------------------------------------
         #region PropertiesBinding
+
+        private bool _InfoPanelEnable;
+        public bool IsEnable
+        {
+            get { return _InfoPanelEnable; }
+            set
+            {
+                _InfoPanelEnable = value;
+                OnPropertyChanged(nameof(IsEnable));
+            }
+        }
 
         public Visibility _SubjecyVisibility;
         public Visibility SubjectVisibility
@@ -434,7 +448,11 @@ namespace DesignPatterns.Client.View
         }
         private void _Open_Exec(object parameter)
         {
-            
+            _MainView.CanvasVisibility = Visibility.Collapsed;
+
+            _MainView.FormVisibility = Visibility.Visible;
+
+            IsEnable = false;
         }
 
         private Command _DeleteSubject;
@@ -450,9 +468,16 @@ namespace DesignPatterns.Client.View
         }
         private void _DeleteSubject_Exec(object parameter)
         {
-            _MainView.RemoveCanvasElement(FocusedElement);
+            var element = FocusedElement as SubjectCanvas;
 
-            UnFocus();
+            if (element == null)
+                return;
+
+            string message = "Do you want to delete " + 
+                element.View.type.ToString() + " : " + element.View.Name;
+            
+            ((App)Application.Current).ShowDialog(this, 
+                new DeleteWindow(message));
         }
 
         private Command _DeleteRef;
@@ -468,9 +493,43 @@ namespace DesignPatterns.Client.View
         }
         private void _DeleteRef_Exec(object parameter)
         {
-            _MainView.RemoveCanvasElement(FocusedElement);
+            var element = FocusedElement as ReferenceCanvas;
 
-            UnFocus();
+            if (element == null)
+                return;
+
+            string message = "Do you want to delete dependency\n" +
+                element.Subject.View.Name + " and "
+                    + element.Target.View.Name + " - type: "
+                    + element.View.type.ToString();
+
+            ((App)Application.Current).ShowDialog(this,
+                new DeleteWindow(message));
+        }
+
+        private Command _SubmitDelete;
+        public ICommand SubmitDelete
+        {
+            get
+            {
+                if (_SubmitDelete != null)
+                    return _SubmitDelete;
+                _SubmitDelete = new Command(_SubmitDelete_Exec);
+                return _SubmitDelete;
+            }
+        }
+        private void _SubmitDelete_Exec(object parameter)
+        {
+            string respond = parameter as string;
+
+            if(respond == "OK")
+            {
+                _MainView.RemoveCanvasElement(FocusedElement);
+
+                UnFocus();
+
+                ((App)Application.Current).CloseDialog();
+            }
         }
 
         #endregion

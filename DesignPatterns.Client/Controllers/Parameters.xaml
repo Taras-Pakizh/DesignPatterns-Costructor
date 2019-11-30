@@ -5,41 +5,40 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:DesignPatterns.Client.Controllers"
              mc:Ignorable="d" 
-             Background="#111111">
+             Background="#111111"
+             Name="HomeController">
 
     <UserControl.Resources>
 
         <ResourceDictionary Source="Styles.xaml"/>
 
     </UserControl.Resources>
-    
-    <StackPanel Background="#222222">
 
-        <StackPanel Orientation="Horizontal" Background="#222222"
-                            HorizontalAlignment="Left">
+    <DockPanel Background="#111111" Margin="5"
+               VerticalAlignment="Stretch" LastChildFill="False">
 
-            <TextBlock Text="Parameters:" VerticalAlignment="Center"/>
+        <ComboBox x:Name="Combo_PName" DockPanel.Dock="Left"
+                  ItemsSource="{Binding ElementName=HomeController, Path=AllParameters, Mode=TwoWay}"
+                  SelectedItem="{Binding ElementName=HomeController, Path=SelectedParameter, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" 
+                  DisplayMemberPath="Name">
 
-            <Button x:Name="Button_PParameter" VerticalAlignment="Center">
+        </ComboBox>
 
-                <Image Source="../images/plus-512.png" Height="30" Width="30"/>
+        <ComboBox x:Name="Combo_PType" DockPanel.Dock="Left"
+                  ItemsSource="{Binding ElementName=HomeController, Path=Types, Mode=TwoWay}"
+                  SelectedItem="{Binding ElementName=HomeController, Path=SelectedType, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" 
+                  DisplayMemberPath="Name">
 
-            </Button>
+        </ComboBox>
 
-        </StackPanel>
+        <Button x:Name="Button_Delete" DockPanel.Dock="Left" 
+                Command="{Binding Path=RemoveParameter}"
+                CommandParameter="{Binding ElementName=HomeController, Path=Id}">
 
-        <StackPanel Background="#222222" x:Name="Panel_Parameters">
+            <Image Source="../images/close-512.png" Height="30" Width="30"/>
 
-            <StackPanel Background="#222222" Orientation="Horizontal">
+        </Button>
 
-                <TextBlock Text="Name:"/>
-
-                <TextBlock Text="Type:"/>
-
-            </StackPanel>
-            
-        </StackPanel>
-
-    </StackPanel>
+    </DockPanel>
 
 </UserControl>

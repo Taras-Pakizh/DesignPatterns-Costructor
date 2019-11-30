@@ -130,7 +130,8 @@
             <DockPanel x:Name="Panel_WorkSpace" Grid.Column="0" LastChildFill="True"
                        Margin="5">
 
-                <ItemsControl ItemsSource="{Binding Path=CanvasBinding}">
+                <ItemsControl ItemsSource="{Binding Path=CanvasBinding}" 
+                              Visibility="{Binding Path=CanvasVisibility, Mode=OneWay}">
 
                     <ItemsControl.Resources>
                         
@@ -179,11 +180,13 @@
                     
                 </ItemsControl>
 
-                <local:ObjectForm Visibility="Collapsed"/>
+                <local:ObjectForm Visibility="{Binding Path=FormVisibility}" 
+                                  DataContext="{Binding Path=SelectedObjectForm}"/>
 
             </DockPanel>
 
-            <StackPanel x:Name="Panel_Info" Grid.Column="2" DataContext="{Binding Path=InfoPanel}">
+            <StackPanel x:Name="Panel_Info" Grid.Column="2" DataContext="{Binding Path=InfoPanel}"
+                        IsEnabled="{Binding Path=IsEnable}">
 
                 <StackPanel x:Name="Panel_SubjectFocused" Visibility="{Binding Path=SubjectVisibility}">
 

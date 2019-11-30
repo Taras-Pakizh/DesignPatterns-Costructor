@@ -27,6 +27,10 @@ namespace DesignPatterns.Client.View
                 (ComboBoxSubjectItem.GetValues());
 
             InfoPanel = new InfoPanelView(this);
+
+            CanvasVisibility = Visibility.Visible;
+
+            FormVisibility = Visibility.Collapsed;
         }
         
         public string ErrorMessages { get; set; } = "";
@@ -167,6 +171,9 @@ namespace DesignPatterns.Client.View
                 ((SubjectCanvas)SelectedElement).Focus();
 
                 InfoPanel.SubjectFocus((SubjectCanvas)SelectedElement);
+
+                SelectedObjectForm = _ObjectForms.Single
+                    (x => x.Subject.Center == ((SubjectCanvas)element).Center);
             }
             else
             {
@@ -195,11 +202,45 @@ namespace DesignPatterns.Client.View
 
             CanvasBinding = new ObservableCollection<IObjectBinding>(elements);
         }
-        
+
 
         //--------------------------------------------------------------------------------------
         #region Properties
+            
+        private Visibility _FormVisibility;
+        public Visibility FormVisibility
+        {
+            get { return _FormVisibility; }
+            set
+            {
+                _FormVisibility = value;
+                OnPropertyChanged(nameof(FormVisibility));
+            }
+        }
 
+        private Visibility _CanvasVisibility;
+        public Visibility CanvasVisibility
+        {
+            get { return _CanvasVisibility; }
+            set
+            {
+                _CanvasVisibility = value;
+                OnPropertyChanged(nameof(CanvasVisibility));
+            }
+        }
+
+        private IList<ObjectFormView> _ObjectForms = new List<ObjectFormView>();
+        private ObjectFormView _SelectedObjectForm;
+        public ObjectFormView SelectedObjectForm
+        {
+            get { return _SelectedObjectForm; }
+            set
+            {
+                _SelectedObjectForm = value;
+                OnPropertyChanged(nameof(SelectedObjectForm));
+            }
+        }
+        
         private InfoPanelView _infoPanel;
         public InfoPanelView InfoPanel
         {
@@ -271,6 +312,11 @@ namespace DesignPatterns.Client.View
             UpdateCanvas();
             
             InfoPanel.Update();
+
+            if(element is SubjectCanvas)
+            {
+                _ObjectForms.Add(new ObjectFormView(this, (SubjectCanvas)element));
+            }
         }
         public void RemoveCanvasElement(ICanvasElement element)
         {
@@ -303,6 +349,9 @@ namespace DesignPatterns.Client.View
                 {
                     Elements.Remove(item);
                 }
+
+                _ObjectForms.Remove(_ObjectForms.Single
+                    (x => x.Subject.Center == ((SubjectCanvas)element).Center));
             }
             if(element is ReferenceCanvas)
             {
