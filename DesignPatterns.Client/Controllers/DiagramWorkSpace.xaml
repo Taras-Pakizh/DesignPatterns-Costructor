@@ -96,7 +96,8 @@
 
                 <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" HorizontalAlignment="Right">
 
-                    <Button x:Name="Button_Finish" Content="Finish"/>
+                    <Button x:Name="Button_Finish" Content="Finish"
+                            Command="{Binding Path=Finish}"/>
 
                 </StackPanel>
 

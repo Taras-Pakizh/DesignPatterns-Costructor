@@ -33,6 +33,24 @@ namespace DesignPatterns.Client.View
             FormVisibility = Visibility.Collapsed;
         }
         
+        public void SetVisibilities(Difficulty difficulty)
+        {
+            ResultVisibility = Visibility.Collapsed;
+
+            if(difficulty == Difficulty.Easy)
+            {
+                TestsVisibility = Visibility.Visible;
+
+                WorkSpaceVisibility = Visibility.Collapsed;
+            }
+            else
+            {
+                TestsVisibility = Visibility.Collapsed;
+
+                WorkSpaceVisibility = Visibility.Visible;
+            }
+        }
+
         public string ErrorMessages { get; set; } = "";
 
         public async Task<bool> Authorize(AuthorizationModel model)
@@ -53,16 +71,7 @@ namespace DesignPatterns.Client.View
                     
                     Patterns = new ObservableCollection<PatternView>(await Client.PatternManager.GetAllAsync());
 
-                    var marks = await Client.UserInfo();
-
-                    var markViews = new List<MarkViewWPF>();
-
-                    foreach(var mark in marks)
-                    {
-                        markViews.Add(new MarkViewWPF(mark, Patterns));
-                    }
-
-                    Marks = new ObservableCollection<MarkViewWPF>(markViews);
+                    await LoadMarks();
                 }
             }
             catch(Exception e)
@@ -71,6 +80,25 @@ namespace DesignPatterns.Client.View
             }
 
             return result;
+        }
+
+        public async Task LoadMarks()
+        {
+            if (!Client.IsAuthorizated)
+            {
+                return;
+            }
+
+            var marks = await Client.UserInfo();
+
+            var markViews = new List<MarkViewWPF>();
+
+            foreach (var mark in marks)
+            {
+                markViews.Add(new MarkViewWPF(mark, Patterns));
+            }
+
+            Marks = new ObservableCollection<MarkViewWPF>(markViews);
         }
 
         public async Task<bool> Register(RegistrationModel model)
@@ -206,7 +234,51 @@ namespace DesignPatterns.Client.View
 
         //--------------------------------------------------------------------------------------
         #region Properties
-            
+
+        private Visibility _ResultVisibility;
+        public Visibility ResultVisibility
+        {
+            get { return _ResultVisibility; }
+            set
+            {
+                _ResultVisibility = value;
+                OnPropertyChanged(nameof(ResultVisibility));
+            }
+        }
+
+        private Visibility _TestsVisibility;
+        public Visibility TestsVisibility
+        {
+            get { return _TestsVisibility; }
+            set
+            {
+                _TestsVisibility = value;
+                OnPropertyChanged(nameof(TestsVisibility));
+            }
+        }
+
+        private Visibility _WorkSpaceVisibility;
+        public Visibility WorkSpaceVisibility
+        {
+            get { return _WorkSpaceVisibility; }
+            set
+            {
+                _WorkSpaceVisibility = value;
+                OnPropertyChanged(nameof(WorkSpaceVisibility));
+            }
+        }
+
+        private ResultView _Result;
+        public ResultView Result
+        {
+            get { return _Result; }
+            set
+            {
+                _Result = value;
+                OnPropertyChanged(nameof(Result));
+            }
+        }
+
         private Visibility _FormVisibility;
         public Visibility FormVisibility
         {
@@ -621,6 +693,36 @@ namespace DesignPatterns.Client.View
                     MessageBox.Show("Unknown control name");
                     return;
             }
+        }
+
+        private Command _Finish;
+        public ICommand Finish
+        {
+            get
+            {
+                if (_Finish != null)
+                    return _Finish;
+                _Finish = new Command(_Finish_Exec);
+                return _Finish;
+            }
+        }
+        public async void _Finish_Exec(object parameter)
+        {
+            var pattern = TaskResultCreator.DiagramCreate(Elements, _ObjectForms, LoadedDiagram);
+
+            pattern.Pattern = LoadedDiagram.Pattern;
+
+            Client.DiagramManager.Difficulty = (Difficulty)CurrentDifficulty;
+
+            var result = (DiagramResult)await Client.DiagramManager.PostAsync(pattern);
+
+            Result = new ResultView(this, result);
+
+            WorkSpaceVisibility = Visibility.Collapsed;
+
+            TestsVisibility = Visibility.Collapsed;
+
+            ResultVisibility = Visibility.Visible;
         }
         
         #endregion

@@ -13,7 +13,8 @@
 
     </UserControl.Resources>
 
-    <DockPanel Background="Black" VerticalAlignment="Stretch" LastChildFill="True">
+    <DockPanel Background="Black" VerticalAlignment="Stretch" LastChildFill="True"
+               DataContext="{Binding Path=Result}">
 
         <StackPanel DockPanel.Dock="Top">
 
@@ -21,7 +22,7 @@
 
                 <TextBlock Text="Pattern:"/>
 
-                <TextBlock Name="Text_Pattern"/>
+                <TextBlock Name="Text_Pattern" Text="{Binding Path=Result.Pattern.Name}"/>
 
             </StackPanel>
 
@@ -29,7 +30,7 @@
 
                 <TextBlock Text="Difficulty:"/>
 
-                <TextBlock Name="Text_Difficulty"/>
+                <TextBlock Name="Text_Difficulty" Text="{Binding Path=Difficulty}"/>
 
             </StackPanel>
 
@@ -37,7 +38,9 @@
 
                 <TextBlock Text="Percentage:"/>
 
-                <TextBlock Name="Text_Percentage"/>
+                <TextBlock Name="Text_Percentage" Text="{Binding Path=Result.Percentage}"/>
+
+                <TextBlock Text="%"/>
 
             </StackPanel>
 
@@ -45,7 +48,9 @@
 
                 <TextBlock Text="Mark:"/>
 
-                <TextBlock Name="Text_Mark"/>
+                <TextBlock Name="Text_Mark" Text="{Binding Path=Result.Mark}"/>
+
+                <TextBlock Text="/ 5"/>
 
             </StackPanel>
 
@@ -53,24 +58,23 @@
 
         <StackPanel DockPanel.Dock="Bottom">
 
-            <Button Content="Return to profile"/>
+            <Button Content="Return to profile" Command="{Binding Path=ToProfile}"/>
 
         </StackPanel>
 
-        <ScrollViewer DockPanel.Dock="Top" VerticalScrollBarVisibility="Hidden">
+        <DockPanel DockPanel.Dock="Top">
 
-            <StackPanel>
+            <TextBlock Text="Error list:" DockPanel.Dock="Top"/>
 
-                <TextBlock Text="Error list:"/>
+            <ListBox Name="List_Errors" ItemsSource="{Binding Path=Errors}"
+                     DockPanel.Dock="Top"
+                         ScrollViewer.CanContentScroll="True"
+                         ScrollViewer.VerticalScrollBarVisibility="Hidden">
 
-                <ListBox Name="List_Errors">
+            </ListBox>
 
-                </ListBox>
+        </DockPanel>
 
-            </StackPanel>
-
-        </ScrollViewer>
-        
     </DockPanel>
 
 </UserControl>

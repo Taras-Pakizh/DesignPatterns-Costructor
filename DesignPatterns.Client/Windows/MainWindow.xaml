@@ -10,7 +10,11 @@
 
     <Grid>
 
-        <controllers:DiagramWorkSpace/>
+        <controllers:DiagramWorkSpace Visibility="{Binding Path=WorkSpaceVisibility}"/>
+
+        <controllers:TestController Visibility="{Binding Path=TestsVisibility}"/>
+
+        <controllers:ResultController Visibility="{Binding Path=ResultVisibility}"/>
 
     </Grid>
     

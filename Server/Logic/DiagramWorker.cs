@@ -180,13 +180,15 @@ namespace Server.Logic
         {
             double percentage = 100.0 / correct.Count();
 
-            var ids = received.Select(x => x.GetId()).ToList();
+            var listComparationSuccess = new List<T>();
 
             foreach(var item in correct)
             {
-                if (ids.Contains(item.GetId()))
+                if(CompareElement<T>(received, item, out T founded))
                 {
                     result.AddComparationSuccess<T>(percentage);
+
+                    listComparationSuccess.Add(founded);
                 }
                 else
                 {
@@ -194,17 +196,63 @@ namespace Server.Logic
                 }
             }
 
-            ids = correct.Select(x => x.GetId()).ToList();
+            var listFails = received.ToList();
 
-            foreach(var item in received)
+            foreach(var item in listComparationSuccess)
             {
-                if (!ids.Contains(item.GetId()))
+                listFails.Remove(item);
+            }
+            
+            var ids = correct.Select(x => (int)x.GetId()).ToList();
+
+            foreach(var item in listFails)
+            {
+                if (!ids.Contains((int)item.GetId()))
                 {
                     result.AddExtraErrorPercentage<T>(percentage);
 
                     result.AddError<T>(item.ToString() + " - extra in diagram");
                 }
             }
+
+            //---------doublicates-------------
+
+            if (typeof(T) == typeof(SubjectReferenceView))
+                return;
+
+            ids = received.Select(x => (int)x.GetId()).ToList();
+            
+            foreach(var item in received)
+            {
+                int count = ids.Where(x => x == (int)item.GetId()).Count();
+
+                if(count > 1)
+                {
+                    result.AddExtraErrorPercentage<T>(percentage * (count - 1));
+
+                    result.AddError<T>("There is dublicates of element  - " + item.ToString());
+
+                    ids.RemoveAll(x => x == (int)item.GetId());
+                }
+            }
+        }
+
+        private bool CompareElement<T>(IEnumerable<T> receiveds, T example, out T founded)
+            where T : IDiagramElement
+        {
+            foreach (var received in receiveds)
+            {
+                if (received.Compare(example))
+                {
+                    founded = received;
+
+                    return true;
+                }
+            }
+
+            founded = default(T);
+
+            return false;
         }
     }
 }

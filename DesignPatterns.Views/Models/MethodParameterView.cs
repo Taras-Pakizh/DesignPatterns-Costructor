@@ -40,5 +40,19 @@ namespace DesignPatterns.Views
             }
             return Id.Equals(instance.Id);
         }
+
+        public bool Compare(IDiagramElement _example)
+        {
+            var example = _example as MethodParameterView;
+
+            if (example == null)
+                return false;
+
+            var properties = GetType().GetProperties().ToList();
+
+            properties.Remove(properties.Single(x => x.Name == nameof(Id)));
+            
+            return Diagram.CompareDiagramElement<MethodParameterView>(this, example, properties);
+        }
     }
 }

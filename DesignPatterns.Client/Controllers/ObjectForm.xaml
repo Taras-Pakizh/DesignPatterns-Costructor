@@ -69,9 +69,9 @@
                                 <DataTemplate DataType="{x:Type view:FormElement}">
 
                                     <controllers:ObjectItem Properties="{Binding Path=Elements}"
-                                                            SelectedProperty="{Binding Path=SelectedElement}"
+                                                            SelectedProperty="{Binding Path=SelectedElement, Mode=TwoWay}"
                                                             Types="{Binding Path=Types}"
-                                                            SelectedType="{Binding Path=SelectedType}"
+                                                            SelectedType="{Binding Path=SelectedType, Mode=TwoWay}"
                                                             Id="{Binding Path=Id}"
                                     />
 
@@ -124,9 +124,9 @@
                                 <DataTemplate DataType="{x:Type view:FormElement}">
 
                                     <controllers:ObjectMethod Methods="{Binding Path=Elements}"
-                                                              SelectedMethod="{Binding Path=SelectedElement}"
+                                                              SelectedMethod="{Binding Path=SelectedElement, Mode=TwoWay}"
                                                               ReturnTypes="{Binding Path=Types}"
-                                                              SelectedReturnType="{Binding Path=SelectedType}"
+                                                              SelectedReturnType="{Binding Path=SelectedType, Mode=TwoWay}"
                                                               Parameters="{Binding Path=SubElements}"
                                                               Id="{Binding Path=Id}"
                                     />

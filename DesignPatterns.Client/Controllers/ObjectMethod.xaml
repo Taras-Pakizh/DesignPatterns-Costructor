@@ -78,9 +78,9 @@
                         <DataTemplate DataType="{x:Type view:FormElement}">
 
                             <local:Parameters AllParameters="{Binding Path=Elements}"
-                                              SelectedParameter="{Binding Path=SelectedElement}"
+                                              SelectedParameter="{Binding Path=SelectedElement, Mode=TwoWay}"
                                               Types="{Binding Path=Types}"
-                                              SelectedType="{Binding Path=SelectedType}"
+                                              SelectedType="{Binding Path=SelectedType, Mode=TwoWay}"
                                               Id="{Binding Path=Id}">
 
                             </local:Parameters>

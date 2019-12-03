@@ -44,5 +44,23 @@ namespace DesignPatterns.Views
             }
             return Id.Equals(instance.Id);
         }
+
+        public bool Compare(IDiagramElement _example)
+        {
+            var example = _example as SubjectMethodView;
+
+            if (example == null)
+                return false;
+
+            var properties = GetType().GetProperties().ToList();
+
+            properties.Remove(properties.Single(x => x.Name == nameof(Id)));
+
+            properties.Remove(properties.Single(x => x.Name == nameof(AccessType)));
+
+            properties.Remove(properties.Single(x => x.Name == nameof(parameters)));
+
+            return Diagram.CompareDiagramElement<SubjectMethodView>(this, example, properties);
+        }
     }
 }

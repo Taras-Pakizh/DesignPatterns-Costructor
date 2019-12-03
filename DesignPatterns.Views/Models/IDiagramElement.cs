@@ -8,6 +8,6 @@ namespace DesignPatterns.Views
 {
     public interface IDiagramElement
     {
-        
+        bool Compare(IDiagramElement example);
     }
 }

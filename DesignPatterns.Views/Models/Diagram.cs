@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Reflection;
 
 namespace DesignPatterns.Views
 {
@@ -59,6 +60,48 @@ namespace DesignPatterns.Views
             var h = new HashSet<T>(result);
 
             return h;
+        }
+
+        public static bool CompareDiagramElement<T>(T instance, T example, IEnumerable<PropertyInfo> properties)
+            where T : IDiagramElement
+        {
+            foreach(var property in properties)
+            {
+                var value = property.GetValue(instance);
+
+                var trueValue = property.GetValue(example);
+
+                if (value is int)
+                {
+                    if ((int)value != (int)trueValue)
+                        return false;
+                    else continue;
+                }
+                else if (value is string)
+                {
+                    if ((string)value != (string)trueValue)
+                        return false;
+                    else continue;
+                }
+                else if (value is ReferencesType)
+                {
+                    if ((ReferencesType)value != (ReferencesType)trueValue)
+                        return false;
+                    else continue;
+                }
+                else if (value is SubjectType)
+                {
+                    if ((SubjectType)value != (SubjectType)trueValue)
+                        return false;
+                    else continue;
+                }
+                else
+                {
+                    throw new Exception("This type of property is not defined");
+                }
+            }
+
+            return true;
         }
     }
 }

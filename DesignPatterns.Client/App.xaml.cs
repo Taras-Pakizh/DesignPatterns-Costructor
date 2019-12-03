@@ -37,12 +37,32 @@ namespace DesignPatterns.Client
             {
                 return;
             }
-
+            
             _currentWindow = new ProfileWindow();
             
             _currentWindow.DataContext = _context;
 
             _currentWindow.Show();
+        }
+
+        public async Task OpenProfile()
+        {
+            if (!_context.IsAuthorized)
+            {
+                return;
+            }
+
+            await _context.LoadMarks();
+
+            var prev = _currentWindow;
+
+            _currentWindow = new ProfileWindow();
+
+            _currentWindow.DataContext = _context;
+
+            _currentWindow.Show();
+
+            prev.Close();
         }
 
         public void Start(int patternId, Difficulty difficulty)
@@ -51,8 +71,10 @@ namespace DesignPatterns.Client
 
             _context.LoadTasks(patternId, difficulty);
 
-            _currentWindow.DataContext = _context;
+            _context.SetVisibilities(difficulty);
 
+            _currentWindow.DataContext = _context;
+            
             _currentWindow.Show();
         }
 
