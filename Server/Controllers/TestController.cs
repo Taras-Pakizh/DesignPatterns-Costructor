@@ -34,6 +34,14 @@ namespace Server.Controllers
                 Mapper.Map<IEnumerable<Answer>, IEnumerable<AnswerView>>(answers)
             );
 
+            foreach(var item in tests.Questions)
+            {
+                foreach(var variant in item.Variants)
+                {
+                    variant.IsTrue = false;
+                }
+            }
+
             return tests;
         }
 
@@ -49,7 +57,10 @@ namespace Server.Controllers
 
             try
             {
-                result = new TestResult(diagramView.Pattern, diagramView.Answers);
+                var trueAnswers = _cx.Questions.Where(x => x.Pattern.Id == diagramView.Pattern.Id)
+                    .Select(y => y.Answers.Where(z => z.IsTrue).FirstOrDefault()).ToList();
+
+                result = new TestResult(diagramView.Pattern, diagramView.Answers, trueAnswers);
 
                 var userManager = new ApplicationUserManager(new UserStore<ApplicationUser>(_cx));
 

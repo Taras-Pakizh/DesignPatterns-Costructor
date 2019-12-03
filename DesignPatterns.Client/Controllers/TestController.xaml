@@ -4,6 +4,8 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:DesignPatterns.Client.Controllers"
+             xmlns:view="clr-namespace:DesignPatterns.Views;assembly=DesignPatterns.Views"
+             xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800" Background="Black">
 
@@ -15,25 +17,50 @@
 
     <DockPanel Background="Black" VerticalAlignment="Stretch" LastChildFill="True">
 
-        <ComboBox Name="Combo_Test" DockPanel.Dock="Top"/>
+        <ComboBox x:Name="Combo_Test" DockPanel.Dock="Top"
+            ItemsSource="{Binding Path=Questions, Mode=OneWay}"
+            SelectedItem="{Binding Path=SelectedQuestion, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" 
+            DisplayMemberPath="Number">
+
+            <i:Interaction.Triggers>
+                <i:EventTrigger EventName="SelectionChanged">
+                    <i:InvokeCommandAction Command="{Binding Path=Select}"/>
+                </i:EventTrigger>
+            </i:Interaction.Triggers>
+
+        </ComboBox>
 
         <DockPanel DockPanel.Dock="Bottom" Background="#111111" Margin="5" LastChildFill="False">
 
-            <Button Content="Save answer" DockPanel.Dock="Left"/>
-
-            <Button Content="Finish" DockPanel.Dock="Right"/>
+            <Button Content="Finish" DockPanel.Dock="Right"
+                    Command="{Binding Path=Finish}"/>
 
         </DockPanel>
 
-        <StackPanel>
+        <StackPanel Name="Panel_Radio" DataContext="{Binding Path=SelectedQuestion.View}">
 
-            <TextBlock Name="Text_Question"/>
+            <TextBlock Name="Text_Question" Text="{Binding Path=Question.question}"/>
 
-            <StackPanel Name="Panel_Radio">
-                
-                
-                
-            </StackPanel>
+            <ItemsControl ItemsSource="{Binding Path=Variants}">
+
+                <ItemsControl.Resources>
+
+                    <DataTemplate DataType="{x:Type view:AnswerView}">
+
+                        <RadioButton GroupName="Variants" Content="{Binding Path=answer}"
+                                     IsChecked="{Binding Path=IsTrue, Mode=TwoWay}"/>
+
+                    </DataTemplate>
+
+                </ItemsControl.Resources>
+
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <StackPanel/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+
+            </ItemsControl>
 
         </StackPanel>
 

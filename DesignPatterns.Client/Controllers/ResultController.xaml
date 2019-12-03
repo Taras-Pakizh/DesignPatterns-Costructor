@@ -62,7 +62,7 @@
 
         </StackPanel>
 
-        <DockPanel DockPanel.Dock="Top">
+        <DockPanel DockPanel.Dock="Top" Visibility="{Binding Path=ErrorsVisibility}">
 
             <TextBlock Text="Error list:" DockPanel.Dock="Top"/>
 

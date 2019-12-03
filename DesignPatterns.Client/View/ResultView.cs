@@ -22,6 +22,8 @@ namespace DesignPatterns.Client.View
 
             Difficulty = (Difficulty)view.CurrentDifficulty;
 
+            ErrorsVisibility = Visibility.Visible;
+
             if(Result is TestResult)
             {
                 ErrorsVisibility = Visibility.Collapsed;

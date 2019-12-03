@@ -17,21 +17,23 @@ namespace DesignPatterns.Views
             IsModelValid = false;
         }
         
-        public TestResult(PatternView pattern, IEnumerable<AnswerView> result)
+        public TestResult(PatternView pattern, IEnumerable<AnswerView> result, IList<Answer> trueAnswer)
         {
             Pattern = pattern;
 
             double correctAnswers = 0;
 
+            var ids = trueAnswer.Select(x => x.Id).ToList();
+
             foreach(var item in result)
             {
-                if (item.IsTrue)
+                if (ids.Contains(item.Id))
                 {
                     correctAnswers++;
                 }
             }
 
-            Percentage = (int)(100 * (correctAnswers / result.Count()));
+            Percentage = (int)(100 * (correctAnswers / trueAnswer.Count()));
 
             Mark = Percentage / 20;
 

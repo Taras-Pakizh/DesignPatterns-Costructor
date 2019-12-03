@@ -14,9 +14,9 @@ using DesignPatterns.Views;
 
 namespace DesignPatterns.Client.View
 {
-    public class ApplicationView:MVVMView
+    public class ApplicationView:MVVMView, IDisposable
     {
-        private TheAClient Client { get; } = new TheAClient();
+        public TheAClient Client { get; } = new TheAClient();
 
         public ApplicationView()
         {
@@ -150,6 +150,7 @@ namespace DesignPatterns.Client.View
             {
                 case Difficulty.Easy:
                     Tests = await Client.TestManager.GetAsync(CurrentPattern.Id);
+                    TestsView = new TestsView(this, Tests);
                     break;
                 case Difficulty.Medium:
                 case Difficulty.Hard:
@@ -231,9 +232,30 @@ namespace DesignPatterns.Client.View
             CanvasBinding = new ObservableCollection<IObjectBinding>(elements);
         }
 
+        public void Dispose()
+        {
+            InfoPanel = new InfoPanelView(this);
+
+            _ObjectForms = new List<ObjectFormView>();
+
+            Elements = new List<ICanvasElement>();
+
+            UpdateCanvas();
+        }
 
         //--------------------------------------------------------------------------------------
         #region Properties
+
+        private TestsView _TestsView;
+        public TestsView TestsView
+        {
+            get { return _TestsView; }
+            set
+            {
+                _TestsView = value;
+                OnPropertyChanged(nameof(TestsView));
+            }
+        }
 
         private Visibility _ResultVisibility;
         public Visibility ResultVisibility
@@ -723,6 +745,8 @@ namespace DesignPatterns.Client.View
             TestsVisibility = Visibility.Collapsed;
 
             ResultVisibility = Visibility.Visible;
+
+            Dispose();
         }
         
         #endregion
