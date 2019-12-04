@@ -32,7 +32,21 @@ namespace DesignPatterns.Services
                 return _currentUser;
             }
         }
-        
+
+        private AdminManager _adminManager;
+
+        public AdminManager AdminManager
+        {
+            get
+            {
+                if(_adminManager == null && _token != null)
+                {
+                    _adminManager = new AdminManager(_CreateClient());
+                }
+                return _adminManager;
+            }
+        }
+
         private DiagramManager _diagramManager;
 
         public DiagramManager DiagramManager
@@ -205,6 +219,8 @@ namespace DesignPatterns.Services
             _patternManager = null;
 
             _testManager = null;
+
+            _adminManager = null;
         }
 
         public void Dispose()
