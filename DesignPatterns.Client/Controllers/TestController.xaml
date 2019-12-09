@@ -15,7 +15,8 @@
 
     </UserControl.Resources>
 
-    <DockPanel Background="Black" VerticalAlignment="Stretch" LastChildFill="True">
+    <DockPanel Background="Black" VerticalAlignment="Stretch" LastChildFill="True"
+               DataContext="{Binding Path=TestsView}">
 
         <ComboBox x:Name="Combo_Test" DockPanel.Dock="Top"
             ItemsSource="{Binding Path=Questions, Mode=OneWay}"

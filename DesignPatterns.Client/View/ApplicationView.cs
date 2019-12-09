@@ -33,6 +33,22 @@ namespace DesignPatterns.Client.View
             FormVisibility = Visibility.Collapsed;
         }
         
+        public async void LoadAdminPanel()
+        {
+            if (!IsAuthorized)
+            {
+                throw new Exception("Can't start Admin panel before authorization");
+            }
+            if(Client.CurrentUser.Role != Role.Administrator)
+            {
+                throw new Exception("Can't start Admin panel not being in role - administrator");
+            }
+
+            var basic = await Client.AdminManager.BasicGet();
+
+            AdminView = new AdminView(this, basic);
+        }
+
         public void SetVisibilities(Difficulty difficulty)
         {
             ResultVisibility = Visibility.Collapsed;
@@ -245,6 +261,17 @@ namespace DesignPatterns.Client.View
 
         //--------------------------------------------------------------------------------------
         #region Properties
+
+        private AdminView _adminView;
+        public AdminView AdminView
+        {
+            get { return _adminView; }
+            set
+            {
+                _adminView = value;
+                OnPropertyChanged(nameof(AdminView));
+            }
+        }
 
         private TestsView _TestsView;
         public TestsView TestsView

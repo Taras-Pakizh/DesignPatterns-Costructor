@@ -13,7 +13,11 @@ namespace Server.Mapping
     public static class Mapping
     {
         public static bool isInitialize { get; private set; }
-        public static ApplicationContext cx { get { return context; } }
+        public static ApplicationContext cx
+        {
+            get { return context; }
+            set { context = value; }
+        }
 
         private static ApplicationContext context = new ApplicationContext();
 
@@ -93,21 +97,21 @@ namespace Server.Mapping
                                 y => y.MapFrom(z => cx.SubjectMethods.Find(z.method_id)))
                     .ForMember(x => x.type,
                                 y => y.MapFrom(z => cx.Subjects.Find(z.type_id)));
-                ctg.CreateMap<PatternView, Pattern>()
-                    .ForMember(x => x.subjects,
-                                y => y.MapFrom(z => cx.Subjects.Where(w=>z.subjects.Contains(w.Id))));
+                ctg.CreateMap<PatternView, Pattern>();
+                //.ForMember(x => x.subjects,
+                //            y => y.MapFrom(z => cx.Subjects.Where(w=>z.subjects.Contains(w.Id))));
                 ctg.CreateMap<QuestionView, Question>()
                     .ForMember(x => x.Pattern,
-                                y => y.MapFrom(z => cx.Patterns.Find(z.Pattern_id)))
-                    .ForMember(x => x.Answers,
-                                y => y.MapFrom(z => cx.Answers.Where(w=>z.Answers.Contains(w.Id))));
+                                y => y.MapFrom(z => cx.Patterns.Find(z.Pattern_id)));
+                //.ForMember(x => x.Answers,
+                //            y => y.MapFrom(z => cx.Answers.Where(w=>z.Answers.Contains(w.Id))));
                 ctg.CreateMap<SubjectMethodView, SubjectMethod>()
                     .ForMember(x => x.Subject,
                                 y => y.MapFrom(z => cx.Subjects.Find(z.Subject_Id)))
                     .ForMember(x => x.ReturnValue,
-                                y => y.MapFrom(z => cx.Subjects.Find(z.ReturnValue_Id)))
-                    .ForMember(x => x.parameters,
-                                y => y.MapFrom(z => cx.MethodParameters.Where(w=>z.parameters.Contains(w.Id))));
+                                y => y.MapFrom(z => cx.Subjects.Find(z.ReturnValue_Id)));
+                    //.ForMember(x => x.parameters,
+                    //            y => y.MapFrom(z => cx.MethodParameters.Where(w=>z.parameters.Contains(w.Id))));
                 ctg.CreateMap<SubjectPropertyView, SubjectProperty>()
                     .ForMember(x => x.Subject,
                                 y => y.MapFrom(z => cx.Subjects.Find(z.Subject_Id)))

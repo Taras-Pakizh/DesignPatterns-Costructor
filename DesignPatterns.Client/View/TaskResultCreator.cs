@@ -10,6 +10,94 @@ namespace DesignPatterns.Client.View
 {
     public class TaskResultCreator
     {
+        public static CRUDPattern Create(PatternView pattern, 
+            IEnumerable<AdminFormElementView> subjects,
+            IEnumerable<AdminFormElementView> references)
+        {
+            var subjectViews = new List<SubjectView>();
+            var referenceViews = new List<SubjectReferenceView>();
+            var propertyViews = new List<SubjectPropertyView>();
+            var methodViews = new List<SubjectMethodView>();
+            var parameterViews = new List<MethodParameterView>();
+
+            //References---------------------------------------
+            foreach(var item in references)
+            {
+                var context = ((SubjectReferenceView)item.Context);
+
+                context.subject_Id = (int)item.Start.GetId();
+
+                context.target_Id = (int)item.End.GetId();
+
+                context.type = item.SelectedReferenceType.Type;
+
+                referenceViews.Add(context);
+            }
+            
+            foreach(var item in subjects)
+            {
+                //Subjects------------------------------------------
+                var context = ((SubjectView)item.Context);
+
+                context.type = item.SelectedSubjectType.Type;
+
+                subjectViews.Add(context);
+
+                //Properties-----------------------------------------
+                foreach(var property in item.HighSubElements)
+                {
+                    var propertyView = ((SubjectPropertyView)property.Context);
+
+                    propertyView.Name = property.Name;
+
+                    propertyView.Type_Id = (int)property.SelectedElement.GetId();
+
+                    propertyViews.Add(propertyView);
+                }
+
+                //Methods----------------------------------------------
+                foreach(var method in item.LowSubElements)
+                {
+                    var methodView = ((SubjectMethodView)method.Context);
+
+                    methodView.Name = method.Name;
+
+                    methodView.ReturnValue_Id = (int)method.SelectedElement.GetId();
+
+                    methodViews.Add(methodView);
+
+                    //Parameters---------------------------------------
+                    foreach(var parameter in method.HighSubElements)
+                    {
+                        var paramView = ((MethodParameterView)parameter.Context);
+
+                        paramView.Name = parameter.Name;
+
+                        paramView.type_id = (int)parameter.SelectedElement.GetId();
+
+                        parameterViews.Add(paramView);
+                    }
+                }
+            }
+            
+            var diagram = new Diagram()
+            {
+                Pattern = pattern,
+                Subjects = subjectViews,
+                SubjectReferences = referenceViews,
+                SubjectProperties = propertyViews,
+                SubjectMethods = methodViews,
+                MethodParameters = parameterViews
+            };
+
+            return new CRUDPattern()
+            {
+                Pattern = pattern,
+                Diagram = diagram,
+                Tests = new TestView()
+            };
+        }
+
         public static Diagram DiagramCreate(
             IEnumerable<ICanvasElement> canvasElements, 
             IEnumerable<ObjectFormView> elementsContent,

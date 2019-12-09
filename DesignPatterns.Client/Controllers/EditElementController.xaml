@@ -1,0 +1,46 @@
+﻿<UserControl x:Class="DesignPatterns.Client.Controllers.EditElementController"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:DesignPatterns.Client.Controllers"
+             mc:Ignorable="d" 
+             Background="#111111" Name="HomeController">
+
+    <UserControl.Resources>
+
+        <ResourceDictionary Source="Styles.xaml"/>
+
+    </UserControl.Resources>
+
+    <DockPanel Background="#111111" Margin="5"
+               VerticalAlignment="Stretch" LastChildFill="False">
+
+        <TextBox Name="Box_Name" 
+                 DockPanel.Dock="Left"
+                 Width="200"
+                 Text="{Binding ElementName=HomeController, Path=ElementName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"         
+        />
+
+        <ComboBox x:Name="Combo_OType" DockPanel.Dock="Left"
+                  ItemsSource="{Binding ElementName=HomeController, Path=Types, Mode=TwoWay}"
+                  SelectedItem="{Binding ElementName=HomeController, Path=SelectedType, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" 
+                  DisplayMemberPath="Text">
+
+        </ComboBox>
+
+        <Button x:Name="Button_Open" DockPanel.Dock="Left" Content="Open"
+                Command="{Binding Path=OpenSubject}">
+
+        </Button>
+        
+        <Button x:Name="Button_Delete" DockPanel.Dock="Left" 
+                Command="{Binding Path=RemoveSubject}">
+
+            <Image Source="../images/close-512.png" Height="30" Width="30"/>
+
+        </Button>
+
+    </DockPanel>
+
+</UserControl>

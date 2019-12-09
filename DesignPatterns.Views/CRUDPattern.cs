@@ -14,6 +14,8 @@ namespace DesignPatterns.Views
 
         public TestView Tests { get; set; }
         
+        public bool IsTestActive { get; set; }
+
         public object GetId()
         {
             return Pattern.Id;

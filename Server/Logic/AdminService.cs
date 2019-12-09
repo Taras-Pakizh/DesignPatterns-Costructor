@@ -18,6 +18,8 @@ namespace Server.Logic
         public AdminService(ApplicationContext context)
         {
             _cx = context;
+
+            Mapping.Mapping.cx = _cx;
         }
         
         /// <summary>
@@ -30,11 +32,13 @@ namespace Server.Logic
         {
             var model = Mapper.Map<Tview, T>(viewModel);
 
-            var addedModel = _cx.Set<T>().Add(model);
+            _cx.Set<T>().Add(model);
 
+            _cx.SaveChanges();
+            
             return new Entity_View<T, Tview>()
             {
-                Entity = addedModel,
+                Entity = model,
                 View = viewModel
             };
         }
@@ -52,7 +56,7 @@ namespace Server.Logic
             foreach(var property in properties)
             {
                 var prev = (int)property.GetValue(model);
-
+                
                 var entity = entity_Views.Single(x => (int)x.View.GetId() == prev).Entity;
 
                 var idProperty = entity.GetType().GetProperties().Single(x => x.Name == "Id");
@@ -119,10 +123,21 @@ namespace Server.Logic
 
                 resultsEV.Add(_Add<Tview, T>(item));
             }
-
-            _cx.SaveChanges();
-
+            
             return resultsEV;
+        }
+
+        private IEnumerable<Entity_View<Subject, SubjectView>> _GetBasic()
+        {
+            var entities = _cx.Subjects.Where(x => x.Id <= 10).ToList();
+
+            var views = Mapper.Map<IEnumerable<Subject>, IEnumerable<SubjectView>>(entities);
+            
+            return entities.Zip(views, (entity, view) => new Entity_View<Subject, SubjectView>()
+            {
+                Entity = entity,
+                View = view
+            });
         }
 
         //-------------------------------------------------------------------------------
@@ -141,7 +156,9 @@ namespace Server.Logic
 
                 var subjectsEV = _AddToDatabase<Subject, SubjectView, Pattern, PatternView>
                     (data.Diagram.Subjects, _GetIdProperties<SubjectView>(),
-                    new List<Entity_View<Pattern, PatternView>>() { patternEV });
+                    new List<Entity_View<Pattern, PatternView>>() { patternEV }).ToList();
+
+                subjectsEV.AddRange(_GetBasic());
 
                 var referencesEV = _AddToDatabase<SubjectReference, SubjectReferenceView, Subject, SubjectView>
                     (data.Diagram.SubjectReferences, _GetIdProperties<SubjectReferenceView>(), subjectsEV);
@@ -172,21 +189,26 @@ namespace Server.Logic
 
                 //-------------------tests--------------------------------
 
-                var questionsEV = _AddToDatabase<Question, QuestionView, Pattern, PatternView>
+                if (data.IsTestActive)
+                {
+                    var questionsEV = _AddToDatabase<Question, QuestionView, Pattern, PatternView>
                     (data.Tests.Questions.Select(x => x.Question).ToList(), _GetIdProperties<QuestionView>(),
                     new List<Entity_View<Pattern, PatternView>>() { patternEV });
 
-                var answerView = new List<AnswerView>();
+                    var answerView = new List<AnswerView>();
 
-                foreach(var item in data.Tests.Questions)
-                {
-                    answerView.AddRange(item.Variants);
+                    foreach (var item in data.Tests.Questions)
+                    {
+                        answerView.AddRange(item.Variants);
+                    }
+
+                    var answersEV = _AddToDatabase<Answer, AnswerView, Question, QuestionView>
+                        (answerView, _GetIdProperties<AnswerView>(), questionsEV);
                 }
-
-                var answersEV = _AddToDatabase<Answer, AnswerView, Question, QuestionView>
-                    (answerView, _GetIdProperties<AnswerView>(), questionsEV);
+                
+                _cx.SaveChanges();
             }
-            catch(Exception e)
+            catch (Exception e)
             {
                 return new CRUDResult()
                 {

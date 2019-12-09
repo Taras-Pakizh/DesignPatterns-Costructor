@@ -1,0 +1,88 @@
+﻿<UserControl x:Class="DesignPatterns.Client.Controllers.AdminPatternController"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:DesignPatterns.Client.Controllers"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800" Background="Black">
+
+    <UserControl.Resources>
+
+        <ResourceDictionary Source="Styles.xaml"/>
+
+    </UserControl.Resources>
+
+    <DockPanel Background="Black" VerticalAlignment="Stretch" LastChildFill="True">
+
+        <DockPanel Background="#111111" LastChildFill="False" DockPanel.Dock="Bottom"
+                   Margin="5">
+
+            <Button x:Name="Button_AddPattern" 
+                    VerticalAlignment="Center"
+                    DockPanel.Dock="Right"
+                    Command="{Binding Path=AddPattern}">
+
+                <Image Source="../images/plus-512.png" Height="30" Width="30"/>
+
+            </Button>
+
+            <Button x:Name="Button_Back"
+                    VerticalAlignment="Center"
+                    DockPanel.Dock="Left"
+                    Command="{Binding Path=ToProfile}">
+
+                <Image Source="../images/back.png" Height="30" Width="30"/>
+
+            </Button>
+
+        </DockPanel>
+
+        <DockPanel DockPanel.Dock="Top" LastChildFill="True" Background="#111111" Margin="5">
+
+            <TextBlock Text="Created patterns:" DockPanel.Dock="Top"/>
+
+            <ComboBox Name="Combo_Patterns" DockPanel.Dock="Top"
+                      ItemsSource="{Binding Path=Patterns, Mode=OneWay}" 
+                      SelectedItem="{Binding Path=SelectedPattern, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}"
+                      DisplayMemberPath="Name"/>
+
+            <DockPanel Name="Panel_SelectedPattern" 
+                       DockPanel.Dock="Top"
+                       Margin="5">
+
+                <DockPanel LastChildFill="False" DockPanel.Dock="Bottom">
+
+                    <Button Name="Button_Delete"
+                            Content="Delete"
+                            DockPanel.Dock="Right"
+                            Command="{Binding Path=DeletePattern}">
+                    </Button>
+
+                    <Button Name="Button_Update"
+                            Content="Update"
+                            DockPanel.Dock="Left"
+                            Command="{Binding Path=UpdatePattern}">
+                    </Button>
+
+                </DockPanel>
+
+                <StackPanel DataContext="{Binding Path=SelectedPattern}">
+
+                    <TextBlock Text="Name:"/>
+
+                    <TextBlock Text="{Binding Path=Name}"/>
+
+                    <TextBlock Text="Description:"/>
+
+                    <TextBlock Text="{Binding Path=description}"/>
+
+                </StackPanel>
+
+            </DockPanel>
+
+        </DockPanel>
+
+    </DockPanel>
+    
+</UserControl>

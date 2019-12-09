@@ -1,0 +1,58 @@
+﻿<UserControl x:Class="DesignPatterns.Client.Controllers.EditReferenceController"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:DesignPatterns.Client.Controllers"
+             mc:Ignorable="d" 
+             Background="#111111" Name="HomeController">
+
+    <UserControl.Resources>
+
+        <ResourceDictionary Source="Styles.xaml"/>
+
+    </UserControl.Resources>
+
+    <DockPanel Background="#111111" Margin="5"
+               VerticalAlignment="Stretch" LastChildFill="False">
+
+        <ComboBox x:Name="Combo_DStart" DockPanel.Dock="Left"
+                  ItemsSource="{Binding ElementName=HomeController, Path=Subjects, Mode=TwoWay}"
+                  SelectedItem="{Binding ElementName=HomeController, Path=Start, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" 
+                  DisplayMemberPath="Name">
+
+        </ComboBox>
+
+        <ComboBox x:Name="Combo_DEnd" DockPanel.Dock="Left"
+                  ItemsSource="{Binding ElementName=HomeController, Path=Subjects, Mode=TwoWay}"
+                  SelectedItem="{Binding ElementName=HomeController, Path=End, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" 
+                  DisplayMemberPath="Name">
+
+        </ComboBox>
+
+        <ComboBox x:Name="Combo_DType" DockPanel.Dock="Left"
+                  ItemsSource="{Binding ElementName=HomeController, Path=Types, Mode=TwoWay}"
+                  SelectedItem="{Binding ElementName=HomeController, Path=SelectedType, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" 
+                  >
+
+            <ComboBox.ItemTemplate>
+                <DataTemplate>
+                    <StackPanel Orientation="Horizontal">
+                        <Image Source="{Binding Image}" Height="30" Width="150" />
+                        <TextBlock Text="{Binding Path=Text}"/>
+                    </StackPanel>
+                </DataTemplate>
+            </ComboBox.ItemTemplate>
+
+        </ComboBox>
+
+        <Button x:Name="Button_Delete" DockPanel.Dock="Left"
+                Command="{Binding Path=RemoveReference}">
+
+            <Image Source="../images/close-512.png" Height="30" Width="30"/>
+
+        </Button>
+
+    </DockPanel>
+
+</UserControl>

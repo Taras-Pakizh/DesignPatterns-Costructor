@@ -6,7 +6,8 @@
         xmlns:local="clr-namespace:DesignPatterns.Client.Windows"
         xmlns:controllers="clr-namespace:DesignPatterns.Client.Controllers"
         mc:Ignorable="d"
-        Title="ProfileWindow" Height="450" Width="800" Background="Black">
+        Title="ProfileWindow" Height="450" Width="800" Background="Black"
+        Loaded="Window_Loaded">
 
     <Window.Resources>
 
@@ -88,7 +89,7 @@
 
                 </StackPanel>
 
-                <DockPanel DockPanel.Dock="Top">
+                <DockPanel DockPanel.Dock="Top" Name="Panel_Tasks">
 
                     <TextBlock Text="Completed tasks:" DockPanel.Dock="Top" HorizontalAlignment="Center"/>
 

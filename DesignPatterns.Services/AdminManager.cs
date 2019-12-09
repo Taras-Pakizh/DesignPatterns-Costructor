@@ -17,31 +17,44 @@ namespace DesignPatterns.Services
             _client = client;
         }
 
-
-
-        public override Task<object> DeleteAsync(int id)
+        public async Task<IEnumerable<SubjectView>> BasicGet()
         {
-            throw new NotImplementedException();
+            HttpResponseMessage response = await _client.GetAsync("api/" + _controllerName);
+            return _ReadAs<IEnumerable<SubjectView>>(response);
         }
 
+        public async override Task<object> DeleteAsync(int id)
+        {
+            HttpResponseMessage response = await _client.DeleteAsync("api/" + _controllerName + "/" + id);
+            return _ReadAs<CRUDResult>(response);
+        }
+
+        /// <summary>
+        /// Not Implemented
+        /// </summary>
         public override Task<IEnumerable<CRUDPattern>> GetAllAsync()
         {
             throw new NotImplementedException();
         }
-
+        
+        /// <summary>
+        /// Not Implemented
+        /// </summary>
         public override Task<CRUDPattern> GetAsync(int id)
         {
             throw new NotImplementedException();
         }
 
-        public override Task<object> PostAsync(CRUDPattern model)
+        public async override Task<object> PostAsync(CRUDPattern model)
         {
-            throw new NotImplementedException();
+            HttpResponseMessage response = await _client.PostAsJsonAsync("api/" + _controllerName, model);
+            return _ReadAs<CRUDResult>(response);
         }
 
-        public override Task<object> UpdateAsync(CRUDPattern model)
+        public async override Task<object> UpdateAsync(CRUDPattern model)
         {
-            throw new NotImplementedException();
+            HttpResponseMessage response = await _client.PutAsJsonAsync("api/" + _controllerName, model);
+            return _ReadAs<CRUDResult>(response);
         }
     }
 }

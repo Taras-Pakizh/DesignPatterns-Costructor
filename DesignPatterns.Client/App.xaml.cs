@@ -78,6 +78,17 @@ namespace DesignPatterns.Client
             _currentWindow.Show();
         }
 
+        public void OpenAdminPanel()
+        {
+            _currentWindow = new AdminPanel();
+
+            _context.LoadAdminPanel();
+
+            _currentWindow.DataContext = _context;
+
+            _currentWindow.Show();
+        }
+
         public void LogOut()
         {
             _currentWindow = new LoginWindow();

@@ -1,0 +1,21 @@
+﻿<Window x:Class="DesignPatterns.Client.Windows.AdminPanel"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:DesignPatterns.Client.Windows"
+        xmlns:controllers="clr-namespace:DesignPatterns.Client.Controllers"
+        mc:Ignorable="d"
+        Title="Admin" Height="450" Width="800">
+
+    <Grid DataContext="{Binding Path=AdminView}">
+
+        <controllers:AdminPanelController Visibility="{Binding Path=PanelVisibility}"/>
+
+        <controllers:AdminPatternController Visibility="{Binding Path=PatternVisibility}"/>
+
+        <controllers:AdminSubjectController Visibility="{Binding Path=OpenPanelVisibility}"/>
+
+    </Grid>
+
+</Window>

@@ -39,6 +39,15 @@ namespace DesignPatterns.Client.Windows
 
         private void Start_Click(object sender, RoutedEventArgs e)
         {
+            if (Context.Client.CurrentUser.Role == Views.Role.Administrator)
+            {
+                ((App)Application.Current).OpenAdminPanel();
+
+                this.Close();
+
+                return;
+            }
+
             Panel_Profile.Visibility = Visibility.Collapsed;
 
             Panel_Patterns.Visibility = Visibility.Visible;
@@ -67,6 +76,17 @@ namespace DesignPatterns.Client.Windows
             ((App)Application.Current).Start((int)patternId, (Difficulty)difficulty);
 
             this.Close();
+        }
+
+
+
+
+        private void Window_Loaded(object sender, RoutedEventArgs e)
+        {
+            if(Context.Client.CurrentUser.Role == Views.Role.Administrator)
+            {
+                Panel_Tasks.Visibility = Visibility.Collapsed;
+            }
         }
     }
 }

@@ -12,8 +12,7 @@
 
         <controllers:DiagramWorkSpace Visibility="{Binding Path=WorkSpaceVisibility}"/>
 
-        <controllers:TestController Visibility="{Binding Path=TestsVisibility}" 
-                                    DataContext="{Binding Path=TestsView}"/>
+        <controllers:TestController Visibility="{Binding Path=TestsVisibility}"/>
 
         <controllers:ResultController Visibility="{Binding Path=ResultVisibility}"/>
 
