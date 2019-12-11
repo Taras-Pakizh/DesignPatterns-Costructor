@@ -97,20 +97,41 @@ namespace Server.Logic
             where T : class
         {
             Random random = new Random();
+            
+            var IdProperty = typeof(T).GetProperty("Id");
 
-            var set = cx.Set<T>();
+            var set = new List<int>();
+
+            foreach(var item in cx.Set<T>().ToList())
+            {
+                var id = (int)IdProperty.GetValue(item);
+
+                set.Add(id);
+            }
 
             var result = new HashSet<T>();
 
+            if(count > set.Count())
+            {
+                count = set.Count();
+            }
+
             for (int i = 0; i < count; ++i)
             {
-                var index = random.Next(1, set.Count());
+                var index = random.Next(0, set.Count());
+                
+                var id = set[index];
 
-                var item = set.Find(index);
+                var item = cx.Set<T>().Find(id);
 
                 if(item != null)
                 {
-                    result.Add(item);
+                    var isNew = result.Add(item);
+
+                    if (!isNew)
+                    {
+                        i--;
+                    }
                 }
             }
 
@@ -157,6 +178,13 @@ namespace Server.Logic
                 if(property.Name == "Pattern")
                 {
                     continue;
+                }
+
+                if(difficulty == Difficulty.Medium)
+                {
+                    if (property.Name == "SubjectMethods" || property.Name == "SubjectProperties"
+                        || property.Name == "MethodParameters")
+                        continue;
                 }
 
                 var type = property.PropertyType.GetGenericArguments()[0];

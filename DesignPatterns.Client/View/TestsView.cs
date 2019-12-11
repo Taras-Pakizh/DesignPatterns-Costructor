@@ -96,5 +96,29 @@ namespace DesignPatterns.Client.View
 
             _MainView.Dispose();
         }
+
+        private Command _ToProfile;
+        public ICommand ToProfile
+        {
+            get
+            {
+                if (_ToProfile != null)
+                    return _ToProfile;
+                _ToProfile = new Command(_ToProfile_Exec);
+                return _ToProfile;
+            }
+        }
+        public async void _ToProfile_Exec(object parameter)
+        {
+            _MainView.WorkSpaceVisibility = Visibility.Collapsed;
+
+            _MainView.TestsVisibility = Visibility.Collapsed;
+
+            _MainView.ResultVisibility = Visibility.Collapsed;
+
+            _MainView.Dispose();
+
+            await ((App)Application.Current).OpenProfile();
+        }
     }
 }

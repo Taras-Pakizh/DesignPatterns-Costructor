@@ -38,7 +38,8 @@
             <Button Content="Save" DockPanel.Dock="Right"
                     Command="{Binding Path=SaveTests}"/>
 
-            <Button x:Name="Button_Back" DockPanel.Dock="Left">
+            <Button x:Name="Button_Back" DockPanel.Dock="Left"
+                    Command="{Binding Path=ToAdminPattern}">
 
                 <Image Source="../images/back.png" Height="30" Width="30"/>
 

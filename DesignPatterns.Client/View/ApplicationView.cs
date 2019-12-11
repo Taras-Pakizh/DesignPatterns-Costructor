@@ -173,6 +173,15 @@ namespace DesignPatterns.Client.View
                     LoadedDiagram = await Client.DiagramManager.GetAsync(CurrentPattern.Id);
                     break;
             }
+
+            if(CurrentDifficulty == Difficulty.Medium && InfoPanel != null)
+            {
+                InfoPanel.OpenButtonVisibility = Visibility.Collapsed;
+            }
+            else if(InfoPanel != null)
+            {
+                InfoPanel.OpenButtonVisibility = Visibility.Visible;
+            }
         }
         
         public IEnumerable<ICanvasElement> ClickCanvas(Point point)
@@ -775,7 +784,31 @@ namespace DesignPatterns.Client.View
 
             Dispose();
         }
-        
+
+        private Command _ToProfile;
+        public ICommand ToProfile
+        {
+            get
+            {
+                if (_ToProfile != null)
+                    return _ToProfile;
+                _ToProfile = new Command(_ToProfile_Exec);
+                return _ToProfile;
+            }
+        }
+        public async void _ToProfile_Exec(object parameter)
+        {
+            WorkSpaceVisibility = Visibility.Collapsed;
+
+            TestsVisibility = Visibility.Collapsed;
+
+            ResultVisibility = Visibility.Collapsed;
+
+            Dispose();
+
+            await ((App)Application.Current).OpenProfile();
+        }
+
         #endregion
     }
 }

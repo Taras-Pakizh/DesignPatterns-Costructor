@@ -321,10 +321,31 @@ namespace DesignPatterns.Client.View
                 return _ToProfile;
             }
         }
-        public void _ToProfile_Exec(object parameter)
+        public async void _ToProfile_Exec(object parameter)
         {
-            //App function
-            throw new NotImplementedException();
+            await((App)Application.Current).OpenProfile();
+        }
+
+        private Command _ToAdminPattern;
+        public ICommand ToAdminPattern
+        {
+            get
+            {
+                if (_ToAdminPattern != null)
+                    return _ToAdminPattern;
+                _ToAdminPattern = new Command(_ToAdminPattern_Exec);
+                return _ToAdminPattern;
+            }
+        }
+        private void _ToAdminPattern_Exec(object parameter)
+        {
+            PatternVisibility = Visibility.Visible;
+
+            PanelVisibility = Visibility.Collapsed;
+
+            OpenPanelVisibility = Visibility.Collapsed;
+
+            TestVisibility = Visibility.Collapsed;
         }
 
         private Command _UpdatePattern;

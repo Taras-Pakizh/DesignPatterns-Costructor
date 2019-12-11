@@ -103,7 +103,8 @@
 
                 <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" HorizontalAlignment="Left">
 
-                    <Button x:Name="Button_Back">
+                    <Button x:Name="Button_Back"
+                            Command="{Binding Path=ToProfile}">
 
                         <Image Source="../images/back.png" Height="30" Width="30"/>
 
@@ -219,7 +220,8 @@
 
                     </ComboBox>
 
-                    <Button Content="Open" Command="{Binding Path=Open}"/>
+                    <Button Content="Open" Command="{Binding Path=Open}" 
+                            Visibility="{Binding Path=OpenButtonVisibility}"/>
 
                     <Button Content="Delete" Command="{Binding Path=DeleteSubject}"/>
 

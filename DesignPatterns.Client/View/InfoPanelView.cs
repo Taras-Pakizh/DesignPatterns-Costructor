@@ -35,6 +35,17 @@ namespace DesignPatterns.Client.View
             IsEnable = true;
 
             UnFocus();
+
+            //---
+
+            if(_MainView.CurrentDifficulty == Difficulty.Medium)
+            {
+                OpenButtonVisibility = Visibility.Collapsed;
+            }
+            else
+            {
+                OpenButtonVisibility = Visibility.Visible;
+            }
         }
 
 
@@ -115,6 +126,17 @@ namespace DesignPatterns.Client.View
 
         //----------------------------------------------------------------------------------
         #region PropertiesBinding
+
+        private Visibility _OpenButtonVisibility;
+        public Visibility OpenButtonVisibility
+        {
+            get { return _OpenButtonVisibility; }
+            set
+            {
+                _OpenButtonVisibility = value;
+                OnPropertyChanged(nameof(OpenButtonVisibility));
+            }
+        }
 
         private bool _InfoPanelEnable;
         public bool IsEnable

@@ -36,6 +36,13 @@
             <Button Content="Finish" DockPanel.Dock="Right"
                     Command="{Binding Path=Finish}"/>
 
+            <Button x:Name="Button_Back" DockPanel.Dock="Left"
+                    Command="{Binding Path=ToProfile}">
+
+                <Image Source="../images/back.png" Height="30" Width="30"/>
+
+            </Button>
+
         </DockPanel>
 
         <StackPanel Name="Panel_Radio" DataContext="{Binding Path=SelectedQuestion.View}">

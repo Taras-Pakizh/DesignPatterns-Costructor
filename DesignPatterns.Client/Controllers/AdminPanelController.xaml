@@ -17,23 +17,10 @@
 
     <DockPanel Background="Black" VerticalAlignment="Stretch" LastChildFill="True">
 
-        <StackPanel DockPanel.Dock="Top" Background="Black">
-
-            <StackPanel Background="Black" Orientation="Horizontal" HorizontalAlignment="Right">
-
-                <Button x:Name="Button_Close">
-
-                    <Image Source="../images/close-512.png" Height="30" Width="30"/>
-
-                </Button>
-
-            </StackPanel>
-
-        </StackPanel>
-
         <DockPanel DockPanel.Dock="Bottom" Background="Black" LastChildFill="False">
 
-            <Button x:Name="Button_Return" DockPanel.Dock="Left">
+            <Button x:Name="Button_Return" DockPanel.Dock="Left" 
+                    Command="{Binding Path=ToAdminPattern}">
 
                 <Image Source="../images/back.png" Height="30" Width="30"/>
 
@@ -41,7 +28,7 @@
 
             <Button x:Name="Button_Finish" 
                     DockPanel.Dock="Right"
-                    Content="Finish"
+                    Content="Save"
                     Command="{Binding Path=Finish}">
             </Button>
 
