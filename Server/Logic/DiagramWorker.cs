@@ -13,7 +13,7 @@ namespace Server.Logic
     {
         //---------------------Static------------------------
 
-        private static ApplicationContext cx = new ApplicationContext();
+        public static ApplicationContext cx = new ApplicationContext();
 
         private static readonly int _DefaultTypesCount = 10;
 

@@ -34,14 +34,17 @@ namespace Server.Controllers
                 Mapper.Map<IEnumerable<Answer>, IEnumerable<AnswerView>>(answers)
             );
 
-            foreach(var item in tests.Questions)
+            if (!User.IsInRole("Administrator"))
             {
-                foreach(var variant in item.Variants)
+                foreach (var item in tests.Questions)
                 {
-                    variant.IsTrue = false;
+                    foreach (var variant in item.Variants)
+                    {
+                        variant.IsTrue = false;
+                    }
                 }
             }
-
+            
             return tests;
         }
 

@@ -40,11 +40,12 @@ namespace DesignPatterns.Services
         /// <summary>
         /// Not Implemented
         /// </summary>
-        public override Task<CRUDPattern> GetAsync(int id)
+        public async override Task<CRUDPattern> GetAsync(int id)
         {
-            throw new NotImplementedException();
+            HttpResponseMessage response = await _client.GetAsync("api/" + _controllerName + "/" + id);
+            return _ReadAs<CRUDPattern>(response);
         }
-
+        
         public async override Task<object> PostAsync(CRUDPattern model)
         {
             HttpResponseMessage response = await _client.PostAsJsonAsync("api/" + _controllerName, model);

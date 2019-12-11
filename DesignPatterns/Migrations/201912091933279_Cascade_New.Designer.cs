@@ -7,13 +7,13 @@ namespace DesignPatterns.Migrations
     using System.Resources;
     
     [GeneratedCode("EntityFramework.Migrations", "6.3.0")]
-    public sealed partial class init6 : IMigrationMetadata
+    public sealed partial class Cascade_New : IMigrationMetadata
     {
-        private readonly ResourceManager Resources = new ResourceManager(typeof(init6));
+        private readonly ResourceManager Resources = new ResourceManager(typeof(Cascade_New));
         
         string IMigrationMetadata.Id
         {
-            get { return "201910181746030_init6"; }
+            get { return "201912091933279_Cascade_New"; }
         }
         
         string IMigrationMetadata.Source

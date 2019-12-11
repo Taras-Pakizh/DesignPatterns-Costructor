@@ -60,23 +60,37 @@
                     </Button>
 
                     <Button Name="Button_Update"
-                            Content="Update"
+                            Content="Diagram"
                             DockPanel.Dock="Left"
                             Command="{Binding Path=UpdatePattern}">
+                    </Button>
+
+                    <Button Name="Button_Tests"
+                            Content="Tests"
+                            DockPanel.Dock="Left"
+                            Command="{Binding Path=UpdateTests}">
                     </Button>
 
                 </DockPanel>
 
                 <StackPanel DataContext="{Binding Path=SelectedPattern}">
 
-                    <TextBlock Text="Name:"/>
+                    <DockPanel Margin="5">
 
-                    <TextBlock Text="{Binding Path=Name}"/>
+                        <TextBlock Text="Name:" Width="150" DockPanel.Dock="Left"/>
 
-                    <TextBlock Text="Description:"/>
+                        <TextBox Text="{Binding Path=Name}" IsEnabled="False" DockPanel.Dock="Right"/>
 
-                    <TextBlock Text="{Binding Path=description}"/>
+                    </DockPanel>
 
+                    <DockPanel Margin="5">
+
+                        <TextBlock Text="Description:" Width="150" DockPanel.Dock="Left"/>
+
+                        <TextBox Text="{Binding Path=description}" IsEnabled="False" DockPanel.Dock="Right"/>
+
+                    </DockPanel>
+                    
                 </StackPanel>
 
             </DockPanel>

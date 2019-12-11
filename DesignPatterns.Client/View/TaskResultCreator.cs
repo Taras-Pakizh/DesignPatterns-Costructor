@@ -10,6 +10,53 @@ namespace DesignPatterns.Client.View
 {
     public class TaskResultCreator
     {
+        public static CRUDPattern CreateTests(PatternView pattern,
+            IEnumerable<AdminFormElementView> Questions)
+        {
+            var question_answerViews = new List<QuestionAnswersView>();
+            
+            foreach(var item in Questions)
+            {
+                var question = ((QuestionView)item.Context);
+
+                question.Name = item.Name;
+
+                question.question = item.QuestionText;
+
+                question.Answers = new List<int>();
+
+                var variants = new List<AnswerView>();
+
+                foreach (var subItem in item.HighSubElements)
+                {
+                    var answer = ((AnswerView)subItem.Context);
+
+                    answer.answer = subItem.Name;
+
+                    answer.IsTrue = subItem.IsChecked;
+                    
+                    variants.Add(answer);
+                }
+
+                question_answerViews.Add(new QuestionAnswersView()
+                {
+                    Question = question,
+                    Variants = variants
+                });
+            }
+
+            return new CRUDPattern()
+            {
+                Pattern = pattern,
+                Diagram = new Diagram(),
+                Tests = new TestView()
+                {
+                    Pattern = pattern,
+                    Questions = question_answerViews
+                }
+            };
+        }
+
         public static CRUDPattern Create(PatternView pattern, 
             IEnumerable<AdminFormElementView> subjects,
             IEnumerable<AdminFormElementView> references)
@@ -64,6 +111,8 @@ namespace DesignPatterns.Client.View
 
                     methodView.ReturnValue_Id = (int)method.SelectedElement.GetId();
 
+                    methodView.parameters = new List<int>();
+
                     methodViews.Add(methodView);
 
                     //Parameters---------------------------------------
@@ -74,7 +123,7 @@ namespace DesignPatterns.Client.View
                         paramView.Name = parameter.Name;
 
                         paramView.type_id = (int)parameter.SelectedElement.GetId();
-
+                        
                         parameterViews.Add(paramView);
                     }
                 }

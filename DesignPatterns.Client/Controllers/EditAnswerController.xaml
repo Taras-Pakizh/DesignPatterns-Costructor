@@ -1,0 +1,37 @@
+﻿<UserControl x:Class="DesignPatterns.Client.Controllers.EditAnswerController"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:DesignPatterns.Client.Controllers"
+             mc:Ignorable="d" 
+             Background="#111111" Name="HomeController">
+
+    <UserControl.Resources>
+
+        <ResourceDictionary Source="Styles.xaml"/>
+
+    </UserControl.Resources>
+
+    <DockPanel Background="#111111" Margin="5"
+               VerticalAlignment="Stretch" LastChildFill="False">
+
+        <TextBox Name="Box_Answer" DockPanel.Dock="Left" Width="200"
+                 Text="{Binding ElementName=HomeController, Path=Answer, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+
+        <RadioButton Name="Radion_IsTrue" 
+                     VerticalAlignment="Center" 
+                     GroupName="Variants" 
+                     DockPanel.Dock="Left"
+                     IsChecked="{Binding ElementName=HomeController, Path=IsTrue, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+
+        <Button x:Name="Button_Delete" DockPanel.Dock="Left" 
+                Command="{Binding Path=RemoveAnswer}">
+
+            <Image Source="../images/close-512.png" Height="30" Width="30"/>
+
+        </Button>
+
+    </DockPanel>
+
+</UserControl>

@@ -12,6 +12,19 @@ namespace DesignPatterns.Client.View
 {
     public class AdminFormElementView : MVVMView 
     {
+        private bool _IsChecked;
+        public bool IsChecked
+        {
+            get { return _IsChecked; }
+            set
+            {
+                _IsChecked = value;
+                OnPropertyChanged(nameof(IsChecked));
+            }
+        }
+
+        public string QuestionText { get; set; }
+
         public string SubjectName
         {
             get
@@ -31,7 +44,16 @@ namespace DesignPatterns.Client.View
             }
         }
 
-        public string Name { get; set; }
+        private string _Name;
+        public string Name
+        {
+            get { return _Name; }
+            set
+            {
+                _Name = value;
+                OnPropertyChanged(nameof(Name));
+            }
+        }
 
         private ComboBoxSubjectItem _SelectedSubjectType;
         public ComboBoxSubjectItem SelectedSubjectType
@@ -344,6 +366,51 @@ namespace DesignPatterns.Client.View
 
             _View.PanelVisibility = Visibility.Visible;
         }
-        
+
+        private Command _AddAnswer;
+        public ICommand AddAnswer
+        {
+            get
+            {
+                if (_AddAnswer != null)
+                    return _AddAnswer;
+                _AddAnswer = new Command(_AddAnswer_Exec);
+                return _AddAnswer;
+            }
+        }
+        private void _AddAnswer_Exec(object parameter)
+        {
+            var answer = new AnswerView()
+            {
+                Id = IdGenerator.GetId(IdTypes.Answer),
+                answer = "",
+                IsTrue = false,
+                question_Id = (int)Context.GetId()
+            };
+
+            var emptyAnswer = new AdminFormElementView(_View, answer)
+            {
+                Name = "",
+                IsChecked = false
+            };
+
+            HighSubElements.Add(emptyAnswer);
+        }
+
+        private Command _RemoveAnswer;
+        public ICommand RemoveAnswer
+        {
+            get
+            {
+                if (_RemoveAnswer != null)
+                    return _RemoveAnswer;
+                _RemoveAnswer = new Command(_RemoveAnswer_Exec);
+                return _RemoveAnswer;
+            }
+        }
+        private void _RemoveAnswer_Exec(object parameter)
+        {
+            _View.SelectedQuestion.HighSubElements.Remove(this);
+        }
     }
 }

@@ -39,6 +39,16 @@ namespace Server.Controllers
                 (_cx.Subjects.Where(x => x.Id <= 10).ToList());
         }
 
+        public CRUDPattern Get(int id)
+        {
+            DiagramWorker.cx = new ApplicationContext();
+
+            return new CRUDPattern()
+            {
+                Diagram = DiagramWorker.CreateDiagram(id)
+            };
+        }
+
         public CRUDResult Post([FromBody]CRUDPattern pattern)
         {
             return _service.Post(pattern);
@@ -49,7 +59,7 @@ namespace Server.Controllers
             return _service.Put(pattern);
         }
 
-        public CRUDResult Delete([FromBody]int id)
+        public CRUDResult Delete(int id)
         {
             return _service.Delete(id);
         }

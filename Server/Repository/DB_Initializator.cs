@@ -59,6 +59,67 @@ namespace Server.Repository
                 }
             }
 
+            var basicTypes = new List<Subject>()
+            {
+                new Subject()
+                {
+                    Name = "Int",
+                    type = SubjectType.Int
+                },
+                new Subject()
+                {
+                    Name = "Double",
+                    type = SubjectType.Double
+                },
+                new Subject()
+                {
+                    Name = "Bool",
+                    type = SubjectType.Bool
+                },
+                new Subject()
+                {
+                    Name = "String",
+                    type = SubjectType.String
+                },
+                new Subject()
+                {
+                    Name = "Char",
+                    type = SubjectType.Char
+                },
+                new Subject()
+                {
+                    Name = "Float",
+                    type = SubjectType.Float
+                },
+                new Subject()
+                {
+                    Name = "Long",
+                    type = SubjectType.Long
+                },
+                new Subject()
+                {
+                    Name = "Short",
+                    type = SubjectType.Short
+                },
+                new Subject()
+                {
+                    Name = "Byte",
+                    type = SubjectType.Byte
+                },
+                new Subject()
+                {
+                    Name = "Void",
+                    type = SubjectType.Void
+                }
+            };
+
+            foreach(var item in basicTypes)
+            {
+                context.Subjects.Add(item);
+            }
+
+            context.SaveChanges();
+
             base.Seed(context);
         }
     }

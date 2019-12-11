@@ -1,4 +1,5 @@
-﻿using DesignPatterns.Views;
+﻿using DesignPatterns.Client.Windows;
+using DesignPatterns.Views;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -27,6 +28,8 @@ namespace DesignPatterns.Client.View
             PanelVisibility = Visibility.Collapsed;
 
             OpenPanelVisibility = Visibility.Collapsed;
+
+            TestVisibility = Visibility.Collapsed;
 
             Patterns = MainView.Patterns;
         }
@@ -158,6 +161,54 @@ namespace DesignPatterns.Client.View
             }
         }
 
+        private AdminFormElementView _SelectedQuestion;
+        public AdminFormElementView SelectedQuestion
+        {
+            get { return _SelectedQuestion; }
+            set
+            {
+                _SelectedQuestion = value;
+                if(_SelectedQuestion != null)
+                {
+                    TestContentVisibility = Visibility.Visible;
+                }
+                OnPropertyChanged(nameof(SelectedQuestion));
+            }
+        }
+
+        private ObservableCollection<AdminFormElementView> _Questions;
+        public ObservableCollection<AdminFormElementView> Questions
+        {
+            get { return _Questions; }
+            set
+            {
+                _Questions = value;
+                OnPropertyChanged(nameof(Questions));
+            }
+        }
+
+        private Visibility _TestVisibility;
+        public Visibility TestVisibility
+        {
+            get { return _TestVisibility; }
+            set
+            {
+                _TestVisibility = value;
+                OnPropertyChanged(nameof(TestVisibility));
+            }
+        }
+
+        private Visibility _TestContentVisibility;
+        public Visibility TestContentVisibility
+        {
+            get { return _TestContentVisibility; }
+            set
+            {
+                _TestContentVisibility = value;
+                OnPropertyChanged(nameof(TestContentVisibility));
+            }
+        }
+
         #endregion
 
 
@@ -196,6 +247,8 @@ namespace DesignPatterns.Client.View
             PanelVisibility = Visibility.Visible;
 
             OpenPanelVisibility = Visibility.Collapsed;
+
+            TestVisibility = Visibility.Collapsed;
         }
 
         private Command _AddSubject;
@@ -285,9 +338,113 @@ namespace DesignPatterns.Client.View
                 return _UpdatePattern;
             }
         }
-        public void _UpdatePattern_Exec(object parameter)
+        public async void _UpdatePattern_Exec(object parameter)
         {
-            throw new NotImplementedException();
+            if (SelectedPattern == null)
+            {
+                return;
+            }
+
+            NewPattern = SelectedPattern;
+            
+            var crud = await MainView.Client.AdminManager.GetAsync(NewPattern.Id);
+
+            var diagram = crud.Diagram;
+            
+            //set values to SubjectsElements, referenceElements, CreatedTypes, AllTypes, IdGenerator
+            //Update name of pattern !!!!!!!-------------------------------
+
+            SubjectElements = new ObservableCollection<AdminFormElementView>();
+
+            ReferenceElements = new ObservableCollection<AdminFormElementView>();
+
+            CreatedTypes = new ObservableCollection<SubjectView>();
+
+            AllTypes = new ObservableCollection<SubjectView>(_BasicTypes);
+
+            IdGenerator.SetDiagramIds(diagram);
+
+            foreach(var item in diagram.Subjects.Where(x => x.Id > 10).ToList())
+            {
+                var subject = new AdminFormElementView(this, item)
+                {
+                    SubjectTypes = MainView.SubjectTypes,
+
+                    SelectedSubjectType = MainView.SubjectTypes.Single(x => x.Type == item.type)
+                };
+                
+                CreatedTypes.Add(item);
+
+                AllTypes.Add(item);
+                
+                //-------------------Subjects
+                foreach(var highSubItem in diagram.SubjectProperties.Where(x=>x.Subject_Id == item.Id))
+                {
+                    subject.HighSubElements.Add(new AdminFormElementView(this, highSubItem)
+                    {
+                        AllElements = AllTypes,
+
+                        SelectedElement = diagram.Subjects.Single(x => x.Id == highSubItem.Type_Id),
+
+                        Name = highSubItem.Name
+                    });
+                }
+
+                foreach(var lowSubItem in diagram.SubjectMethods.Where(x=>x.Subject_Id == item.Id))
+                {
+                    //-----------------Methods
+                    var method = new AdminFormElementView(this, lowSubItem)
+                    {
+                        AllElements = AllTypes,
+
+                        Name = lowSubItem.Name,
+
+                        SelectedElement = diagram.Subjects.Single(x=>x.Id == lowSubItem.ReturnValue_Id),
+                    };
+                    
+                    //---------------------Parameters
+                    foreach(var highSubItem in diagram.MethodParameters.Where(x=>x.method_id == lowSubItem.Id))
+                    {
+                        method.HighSubElements.Add(new AdminFormElementView(this, highSubItem)
+                        {
+                            AllElements = AllTypes,
+
+                            SelectedElement = diagram.Subjects.Single(x=>x.Id == highSubItem.type_id),
+
+                            Name = highSubItem.Name
+                        });
+                    }
+
+                    subject.LowSubElements.Add(method);
+                }
+
+                SubjectElements.Add(subject);
+            }
+
+            //---------------------------References
+            foreach(var item in diagram.SubjectReferences)
+            {
+                ReferenceElements.Add(new AdminFormElementView(this, item)
+                {
+                    CreatedElements = CreatedTypes,
+
+                    ReferenceTypes = MainView.ReferenceTypes,
+
+                    SelectedReferenceType = MainView.ReferenceTypes.Single(x=>x.Type == item.type),
+
+                    Start = diagram.Subjects.Single(x=>x.Id == item.subject_Id),
+
+                    End = diagram.Subjects.Single(x=>x.Id == item.target_Id)
+                });
+            }
+            
+            PatternVisibility = Visibility.Collapsed;
+
+            PanelVisibility = Visibility.Visible;
+
+            OpenPanelVisibility = Visibility.Collapsed;
+
+            TestVisibility = Visibility.Collapsed;
         }
 
         private Command _DeletePattern;
@@ -303,8 +460,221 @@ namespace DesignPatterns.Client.View
         }
         public void _DeletePattern_Exec(object parameter)
         {
-            //set cascade delete before
-            throw new NotImplementedException();
+            if (SelectedPattern == null)
+                return;
+
+            ((App)Application.Current).ShowDialog(this,
+                new DeleteWindow("Do you want to delete pattern: " + SelectedPattern.Name));
+        }
+
+        private Command _UpdateTests;
+        public ICommand UpdateTests
+        {
+            get
+            {
+                if (_UpdateTests != null)
+                    return _UpdateTests;
+                _UpdateTests = new Command(_UpdateTests_Exec);
+                return _UpdateTests;
+            }
+        }
+        private async void _UpdateTests_Exec(object parameter)
+        {
+            if(SelectedPattern == null)
+            {
+                return;
+            }
+
+            var testView = await MainView.Client.TestManager.GetAsync(SelectedPattern.Id);
+
+            Questions = new ObservableCollection<AdminFormElementView>();
+
+            int maxAnswer = 0;
+
+            foreach(var question in testView.Questions)
+            {
+                var variants = new ObservableCollection<AdminFormElementView>();
+
+                foreach(var answer in question.Variants)
+                {
+                    variants.Add(new AdminFormElementView(this, answer)
+                    {
+                        Name = answer.answer,
+                        IsChecked = answer.IsTrue
+                    });
+
+                    if(answer.Id > maxAnswer)
+                    {
+                        maxAnswer = answer.Id;
+                    }
+                }
+
+                Questions.Add(new AdminFormElementView(this, question.Question)
+                {
+                    Name = question.Question.Name,
+                    QuestionText = question.Question.question,
+                    HighSubElements = variants
+                });
+            }
+            
+            if(testView.Questions.Count() != 0)
+            {
+                IdGenerator._questionId = testView.Questions.Max(x => x.Question.Id) + 1;
+
+                IdGenerator._answerId = maxAnswer;
+            }
+
+            TestContentVisibility = Visibility.Collapsed;
+
+            PatternVisibility = Visibility.Collapsed;
+
+            TestVisibility = Visibility.Visible;
+        }
+
+        private Command _AddQuestion;
+        public ICommand AddQuestion
+        {
+            get
+            {
+                if (_AddQuestion != null)
+                    return _AddQuestion;
+                _AddQuestion = new Command(_AddQuestion_Exec);
+                return _AddQuestion;
+            }
+        }
+        private void _AddQuestion_Exec(object parameter)
+        {
+            var question = new QuestionView()
+            {
+                Id = IdGenerator.GetId(IdTypes.Question),
+                Name = "",
+                Pattern_id = SelectedPattern.Id,
+                question = ""
+            };
+            
+            var emptyQuestion = new AdminFormElementView(this, question)
+            {
+                Name = "",
+                QuestionText = ""
+            };
+
+            Questions.Add(emptyQuestion);
+
+            SelectedQuestion = emptyQuestion;
+
+            TestContentVisibility = Visibility.Visible;
+        }
+
+        private Command _RemoveQuestion;
+        public ICommand RemoveQuestion
+        {
+            get
+            {
+                if (_RemoveQuestion != null)
+                    return _RemoveQuestion;
+                _RemoveQuestion = new Command(_RemoveQuestion_Exec);
+                return _RemoveQuestion;
+            }
+        }
+        private void _RemoveQuestion_Exec(object parameter)
+        {
+            if (SelectedQuestion == null)
+                return;
+
+            ((App)Application.Current).ShowDialog(this,
+                new DeleteWindow("Do you want to delete question: " + SelectedQuestion.Name));
+        }
+
+        private Command _SubmitDelete;
+        public ICommand SubmitDelete
+        {
+            get
+            {
+                if (_SubmitDelete != null)
+                    return _SubmitDelete;
+                _SubmitDelete = new Command(_SubmitDelete_Exec);
+                return _SubmitDelete;
+            }
+        }
+        private async void _SubmitDelete_Exec(object parameter)
+        {
+            string respond = parameter as string;
+
+            if (respond == "OK")
+            {
+                if(PatternVisibility == Visibility.Visible && 
+                    TestVisibility == Visibility.Collapsed)
+                {
+                    var result = (CRUDResult)await MainView.Client.AdminManager.
+                        DeleteAsync(SelectedPattern.Id);
+
+                    if (!result.IsSuccess)
+                    {
+                        MessageBox.Show(result.Message);
+
+                        return;
+                    }
+
+                    MainView.Patterns = new ObservableCollection<PatternView>
+                        (await MainView.Client.PatternManager.GetAllAsync());
+
+                    Patterns = MainView.Patterns;
+
+                    SelectedPattern = null;
+                }
+                else
+                {
+                    Questions.Remove(SelectedQuestion);
+
+                    if (Questions.Count() == 0)
+                    {
+                        TestContentVisibility = Visibility.Collapsed;
+                    }
+                    else
+                    {
+                        SelectedQuestion = Questions.FirstOrDefault();
+                    }
+                }
+            }
+
+            ((App)Application.Current).CloseDialog();
+        }
+
+        private Command _SaveTests;
+        public ICommand SaveTests
+        {
+            get
+            {
+                if (_SaveTests != null)
+                    return _SaveTests;
+                _SaveTests = new Command(_SaveTests_Exec);
+                return _SaveTests;
+            }
+        }
+        private async void _SaveTests_Exec(object parameter)
+        {
+            var tests = TaskResultCreator.CreateTests(SelectedPattern, Questions); ;
+
+            tests.IsTestActive = true;
+
+            var result = (CRUDResult)await MainView.Client.AdminManager.UpdateAsync(tests);
+
+            if (!result.IsSuccess)
+            {
+                MessageBox.Show(result.Message);
+
+                return;
+            }
+
+            PatternVisibility = Visibility.Visible;
+
+            PanelVisibility = Visibility.Collapsed;
+
+            OpenPanelVisibility = Visibility.Collapsed;
+
+            TestVisibility = Visibility.Collapsed;
+
+            TestContentVisibility = Visibility.Collapsed;
         }
 
         private Command _Finish;
@@ -324,8 +694,17 @@ namespace DesignPatterns.Client.View
 
             pattern.IsTestActive = false;
 
-            var result = (CRUDResult)await MainView.Client.AdminManager.PostAsync(pattern);
+            var result = new CRUDResult();
 
+            if (Patterns.Select(x => x.Id).ToList().Contains(NewPattern.Id))
+            {
+                result = (CRUDResult)await MainView.Client.AdminManager.UpdateAsync(pattern);
+            }
+            else
+            {
+                result = (CRUDResult)await MainView.Client.AdminManager.PostAsync(pattern);
+            }
+            
             if (!result.IsSuccess)
             {
                 MessageBox.Show(result.Message);
@@ -338,6 +717,14 @@ namespace DesignPatterns.Client.View
             PanelVisibility = Visibility.Collapsed;
 
             OpenPanelVisibility = Visibility.Collapsed;
+
+            TestVisibility = Visibility.Collapsed;
+
+            MainView.Patterns = new ObservableCollection<PatternView>
+                (await MainView.Client.PatternManager.GetAllAsync());
+
+            Patterns = MainView.Patterns;
+
         }
 
         #endregion

@@ -25,6 +25,8 @@ namespace Server.Controllers
         /// <returns></returns>
         public Diagram Get(int id)
         {
+            DiagramWorker.cx = _cx;
+
             return DiagramWorker.CreateRandomDiagram(id);
             //return DiagramWorker.CreateDiagram(id);
         }

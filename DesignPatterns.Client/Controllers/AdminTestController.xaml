@@ -1,0 +1,108 @@
+﻿<UserControl x:Class="DesignPatterns.Client.Controllers.AdminTestController"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:DesignPatterns.Client.Controllers"
+             xmlns:view="clr-namespace:DesignPatterns.Client.View"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800" Background="Black">
+
+    <UserControl.Resources>
+
+        <ResourceDictionary Source="Styles.xaml"/>
+
+    </UserControl.Resources>
+
+    <DockPanel Background="Black" VerticalAlignment="Stretch" LastChildFill="True">
+
+        <DockPanel DockPanel.Dock="Top">
+
+            <Button x:Name="Button_PQuestion" DockPanel.Dock="Right"
+                Command="{Binding Path=AddQuestion}">
+                
+                <Image Source="../images/plus-512.png" Height="30" Width="30"/>
+
+            </Button>
+
+            <ComboBox x:Name="Combo_Test" DockPanel.Dock="Top"
+                ItemsSource="{Binding Path=Questions, Mode=TwoWay}"
+                SelectedItem="{Binding Path=SelectedQuestion, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" 
+                DisplayMemberPath="Name">
+            </ComboBox>
+
+        </DockPanel>
+        
+        <DockPanel DockPanel.Dock="Bottom" Background="#111111" Margin="5" LastChildFill="False">
+
+            <Button Content="Save" DockPanel.Dock="Right"
+                    Command="{Binding Path=SaveTests}"/>
+
+            <Button x:Name="Button_Back" DockPanel.Dock="Left">
+
+                <Image Source="../images/back.png" Height="30" Width="30"/>
+
+            </Button>
+
+        </DockPanel>
+
+        <Button Content="Delete" DockPanel.Dock="Bottom"
+                Command="{Binding Path=RemoveQuestion}"/>
+
+        <StackPanel Visibility="{Binding Path=TestContentVisibility}">
+
+            <StackPanel Name="Panel_Radio" DataContext="{Binding Path=SelectedQuestion}">
+
+                <TextBlock Text="Name:"/>
+
+                <TextBox Name="Box_Question" Text="{Binding Path=Name}"/>
+
+                <TextBlock Text="Question:"/>
+
+                <TextBox Text="{Binding Path=QuestionText}"/>
+
+                <StackPanel Orientation="Horizontal">
+
+                    <TextBlock Text="Variants:" VerticalAlignment="Center"/>
+
+                    <Button x:Name="Button_PAnswer" VerticalAlignment="Center"
+                    Command="{Binding Path=AddAnswer}">
+
+                        <Image Source="../images/plus-512.png" Height="30" Width="30"/>
+
+                    </Button>
+
+                </StackPanel>
+
+                <ItemsControl ItemsSource="{Binding Path=HighSubElements, Mode=TwoWay}">
+
+                    <ItemsControl.Resources>
+
+                        <DataTemplate DataType="{x:Type view:AdminFormElementView}">
+
+                            <local:EditAnswerController
+                            IsTrue="{Binding Path=IsChecked, Mode=TwoWay}"
+                            Answer="{Binding Path=Name, Mode=TwoWay}"
+                        />
+
+                        </DataTemplate>
+
+                    </ItemsControl.Resources>
+
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel 
+                            ScrollViewer.CanContentScroll="True"
+                            ScrollViewer.VerticalScrollBarVisibility="Hidden"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+
+                </ItemsControl>
+
+            </StackPanel>
+
+        </StackPanel>
+        
+    </DockPanel>
+
+</UserControl>

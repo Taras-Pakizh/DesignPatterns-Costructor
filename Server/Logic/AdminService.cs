@@ -152,11 +152,53 @@ namespace Server.Logic
             try
             {
                 var patternEV = _Add<PatternView, Pattern>(data.Pattern);
+                
+                _cx.SaveChanges();
 
+                //data.Pattern.Id = patternEV.Entity.Id;
+
+                var result = _AddDiagram(data, patternEV);
+
+                if (!result.IsSuccess)
+                {
+                    throw new Exception(result.Message);
+                }
+            }
+            catch (Exception e)
+            {
+                return new CRUDResult()
+                {
+                    IsSuccess = false,
+                    Message = e.Message
+                };
+            }
+            
+            return new CRUDResult()
+            {
+                IsSuccess = true,
+                Message = "OK",
+                Pattern = Mapper.Map<Pattern, PatternView>
+                    (_cx.Patterns.Where(x => x.Name == data.Pattern.Name).Single())
+            };
+        }
+
+        /// <summary>
+        /// NOT creates new pattern itself
+        /// Adds new diagram objects
+        /// </summary>
+        private CRUDResult _AddDiagram(CRUDPattern data, Entity_View<Pattern, PatternView> patternEV)
+        {
+            try
+            {
+                //var patternEV = new Entity_View<Pattern, PatternView>()
+                //{
+                //    View = data.Pattern,
+                //    Entity = _cx.Patterns.Find(data.Pattern.Id)
+                //};
 
                 var subjectsEV = _AddToDatabase<Subject, SubjectView, Pattern, PatternView>
-                    (data.Diagram.Subjects, _GetIdProperties<SubjectView>(),
-                    new List<Entity_View<Pattern, PatternView>>() { patternEV }).ToList();
+                            (data.Diagram.Subjects, _GetIdProperties<SubjectView>(),
+                            new List<Entity_View<Pattern, PatternView>>() { patternEV }).ToList();
 
                 subjectsEV.AddRange(_GetBasic());
 
@@ -186,25 +228,195 @@ namespace Server.Logic
 
                 var parametersEV = _AddToDatabase<MethodParameter, MethodParameterView, SubjectMethod, SubjectMethodView>
                     (data.Diagram.MethodParameters, methodProperty, methodsEV);
+                
+                _cx.SaveChanges();
+            }
+            catch(Exception e)
+            {
+                return new CRUDResult()
+                {
+                    IsSuccess = false,
+                    Message = e.Message
+                };
+            }
 
-                //-------------------tests--------------------------------
+            return new CRUDResult()
+            {
+                IsSuccess = true,
+                Message = "OK",
+                Pattern = Mapper.Map<Pattern, PatternView>
+                    (_cx.Patterns.Where(x => x.Name == data.Pattern.Name).Single())
+            };
+        }
 
+        /// <summary>
+        /// NOT creates new pattern itself
+        /// Add new test objects
+        /// </summary>
+        private CRUDResult _AddTests(CRUDPattern data)
+        {
+            try
+            {
+                var patternEV = new Entity_View<Pattern, PatternView>()
+                {
+                    View = data.Pattern,
+                    Entity = _cx.Patterns.Find(data.Pattern.Id)
+                };
+
+                var questionsEV = _AddToDatabase<Question, QuestionView, Pattern, PatternView>
+                (data.Tests.Questions.Select(x => x.Question).ToList(), _GetIdProperties<QuestionView>(),
+                new List<Entity_View<Pattern, PatternView>>() { patternEV });
+
+                var answerView = new List<AnswerView>();
+
+                foreach (var item in data.Tests.Questions)
+                {
+                    answerView.AddRange(item.Variants);
+                }
+
+                var answersEV = _AddToDatabase<Answer, AnswerView, Question, QuestionView>
+                    (answerView, _GetIdProperties<AnswerView>(), questionsEV);
+            }
+            catch (Exception e)
+            {
+                return new CRUDResult()
+                {
+                    IsSuccess = false,
+                    Message = e.Message
+                };
+            }
+
+            return new CRUDResult()
+            {
+                IsSuccess = true,
+                Message = "OK",
+                Pattern = Mapper.Map<Pattern, PatternView>
+                    (_cx.Patterns.Where(x => x.Name == data.Pattern.Name).Single())
+            };
+        }
+
+        /// <summary>
+        /// NOT deletes pattern itself ------------ UPDATES its Name and Description
+        /// IF IsTestActive - deletes prev tests and adds new
+        /// IF IsTestActive - deletes diagram and adds new
+        /// </summary>
+        public CRUDResult Put(CRUDPattern data)
+        {
+            var pattern = _cx.Patterns.Find(data.Pattern.Id);
+
+            if (pattern == null)
+            {
+                return new CRUDResult()
+                {
+                    IsSuccess = false,
+                    Message = "Pattern not found"
+                };
+            }
+
+            try
+            {
                 if (data.IsTestActive)
                 {
-                    var questionsEV = _AddToDatabase<Question, QuestionView, Pattern, PatternView>
-                    (data.Tests.Questions.Select(x => x.Question).ToList(), _GetIdProperties<QuestionView>(),
-                    new List<Entity_View<Pattern, PatternView>>() { patternEV });
+                    var result = _DeleteTests(pattern);
 
-                    var answerView = new List<AnswerView>();
-
-                    foreach (var item in data.Tests.Questions)
+                    if (!result.IsSuccess)
                     {
-                        answerView.AddRange(item.Variants);
+                        throw new Exception(result.Message);
                     }
 
-                    var answersEV = _AddToDatabase<Answer, AnswerView, Question, QuestionView>
-                        (answerView, _GetIdProperties<AnswerView>(), questionsEV);
+                    return _AddTests(data);
                 }
+                else
+                {
+                    var result = _DeleteDiagramSubjects(pattern);
+
+                    if (!result.IsSuccess)
+                    {
+                        throw new Exception(result.Message);
+                    }
+
+                    //Update pattern
+                    pattern.Name = data.Pattern.Name;
+
+                    pattern.description = data.Pattern.description;
+
+                    _cx.SaveChanges();
+                    //---
+
+                    return _AddDiagram(data, new Entity_View<Pattern, PatternView>()
+                    {
+                        Entity = pattern,
+                        View = data.Pattern
+                    });
+                }
+            }
+            catch(Exception e)
+            {
+                return new CRUDResult()
+                {
+                    IsSuccess = false,
+                    Message = e.Message
+                };
+            }
+        }
+
+        /// <summary>
+        /// Not deletes pattern itself
+        /// Deletes only questions and answers table that related to pattern
+        /// </summary>
+        private CRUDResult _DeleteTests(Pattern pattern)
+        {
+            try
+            {
+                var questions = _cx.Questions.Where(x => x.Pattern.Id == pattern.Id).ToList();
+
+                foreach (var question in questions)
+                {
+                    _cx.Answers.RemoveRange(question.Answers);
+
+                    _cx.Questions.Remove(question);
+                }
+
+                _cx.SaveChanges();
+            }
+            catch(Exception e)
+            {
+                return new CRUDResult()
+                {
+                    IsSuccess = false,
+                    Message = e.Message
+                };
+            }
+
+            return new CRUDResult()
+            {
+                IsSuccess = true,
+                Message = "OK"
+            };
+        }
+
+        /// <summary>
+        /// Not deletes pattern itself
+        /// Deletes only diagram subjects tables that related to pattern
+        /// </summary>
+        private CRUDResult _DeleteDiagramSubjects(Pattern pattern)
+        {
+            try
+            {
+                var parameters = _cx.MethodParameters.Where(x => x.method.Subject.pattern.Id == pattern.Id).ToList();
+                _cx.MethodParameters.RemoveRange(parameters);
+                
+                var methods = _cx.SubjectMethods.Where(x => x.Subject.pattern.Id == pattern.Id).ToList();
+                _cx.SubjectMethods.RemoveRange(methods);
+
+                var properties = _cx.SubjectProperties.Where(x => x.Subject.pattern.Id == pattern.Id).ToList();
+                _cx.SubjectProperties.RemoveRange(properties);
+
+                var references = _cx.SubjectReferences.Where(x => x.subject.pattern.Id == pattern.Id || x.target.pattern.Id == pattern.Id).ToList();
+                _cx.SubjectReferences.RemoveRange(references);
+
+                var subjects = _cx.Subjects.Where(x => x.pattern.Id == pattern.Id).ToList();
+                _cx.Subjects.RemoveRange(subjects);
                 
                 _cx.SaveChanges();
             }
@@ -216,28 +428,49 @@ namespace Server.Logic
                     Message = e.Message
                 };
             }
-            
+
             return new CRUDResult()
             {
                 IsSuccess = true,
-                Message = "OK",
-                Pattern = Mapper.Map<Pattern, PatternView>
-                    (_cx.Patterns.Where(x => x.Name == data.Pattern.Name).Single())
+                Message = "OK"
             };
         }
 
-        public CRUDResult Put(CRUDPattern data)
+        /// <summary>
+        /// Not deletes pattern itself
+        /// Deletes only marks related to pattern
+        /// </summary>
+        private CRUDResult _DeleteMarks(Pattern pattern)
         {
-            Delete(data.Pattern.Id);
+            try
+            {
+                var marks = _cx.Marks.Where(x => x.pattern.Id == pattern.Id).ToList();
 
-            return Post(data);
+                _cx.Marks.RemoveRange(marks);
+
+                _cx.SaveChanges();
+            }
+            catch (Exception e)
+            {
+                return new CRUDResult()
+                {
+                    IsSuccess = false,
+                    Message = e.Message
+                };
+            }
+
+            return new CRUDResult()
+            {
+                IsSuccess = true,
+                Message = "OK"
+            };
         }
 
+        /// <summary>
+        /// Deletes pattern itself and do cascade delete on database
+        /// </summary>
         public CRUDResult Delete(int id)
         {
-            //if set cascasde delete in database than---------------------------------
-            //only delete Pattern-----------------------------------------------------
-
             var pattern = _cx.Patterns.Find(id);
 
             if(pattern == null)
@@ -251,6 +484,27 @@ namespace Server.Logic
 
             try
             {
+                var result = _DeleteTests(pattern);
+
+                if (!result.IsSuccess)
+                {
+                    throw new Exception(result.Message);
+                }
+
+                result = _DeleteDiagramSubjects(pattern);
+
+                if (!result.IsSuccess)
+                {
+                    throw new Exception(result.Message);
+                }
+
+                result = _DeleteMarks(pattern);
+
+                if (!result.IsSuccess)
+                {
+                    throw new Exception(result.Message);
+                }
+
                 _cx.Patterns.Remove(pattern);
 
                 _cx.SaveChanges();

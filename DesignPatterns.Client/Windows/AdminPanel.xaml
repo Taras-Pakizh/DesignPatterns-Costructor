@@ -16,6 +16,8 @@
 
         <controllers:AdminSubjectController Visibility="{Binding Path=OpenPanelVisibility}"/>
 
+        <controllers:AdminTestController Visibility="{Binding Path=TestVisibility}"/>
+
     </Grid>
 
 </Window>
